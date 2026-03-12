@@ -1,39 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:io';
-import 'dart:math';
+import 'classes.dart';
 
-class Ponto {
-  int x;
-  int y;
-  bool navio = false;
+main() {
+  // Inicializa o tabuleiro e as equipes aqui.
+  Tabuleiro mapa = new Tabuleiro(16);
 
-  Ponto(this.x, this.y, this.navio) {
-    x = x;
-    y = y;
-    navio = navio;
-  }
+  mapa.imprimirTabuleiro();
 
 }
-
-class Tabuleiro {
-  List<List<Bool>> tabuleiro;
-
-  Tabuleiro({
-    required this.tabuleiro,
-  });
-
-  
-}
-
-// 
-
-
-List<List<String>> tabuleiro = [];
-
-
-
-/*
-casinhas, muitas+
-
-
- */
