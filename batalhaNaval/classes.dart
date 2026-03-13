@@ -70,8 +70,8 @@ class Equipe {
 
   Equipe([this.nome = '', this.cor = Cores.colorReset, this.acertos = 0]) {
     // Código de debug, se o nome já for selecionado na criação, quer dizer q é teste.
-    // ToDO: Remover
-    if (this.cor != Cores.colorReset) {return;}
+    // // ToDO: Remover
+    // if (this.cor != Cores.colorReset) {return;}
     
 
     // Selecionar o nome da equipe;
@@ -185,10 +185,10 @@ class Tabuleiro {
   int rodada;
   // ! Equipes
   // * Teste
-  List<Equipe> equipes = [new Equipe('Draguisada', Cores.vermelho), new Equipe('Invertebrados', Cores.verde)];
+  // List<Equipe> equipes = [new Equipe('Draguisada', Cores.vermelho), new Equipe('Invertebrados', Cores.verde)];
   
   // * Real oficial
-  // List<Equipe> equipes = [new Equipe('Primeira equipe'), new Equipe('Segunda equipe')];
+  List<Equipe> equipes = [new Equipe('Primeira equipe'), new Equipe('Segunda equipe')];
   
   // Quando inicaliza o tabuleiro, é criado o tabuleiro e as equipes.
   Tabuleiro(this.TAMANHO_TABULEIRO, [this.rodada = 0]) {
