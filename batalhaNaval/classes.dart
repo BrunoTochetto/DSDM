@@ -26,14 +26,22 @@ class Cores {
   static String texto(String texto, String cor) {return (cor + texto + Cores.colorReset);}
   static void printar(String texto, String cor) {print(cor + texto + Cores.colorReset);}
 }
+
+class Simbolos {
+  static const String acerto = '■';
+  static const String erro = 'x';
+}
+
+
 class Ponto {
   int x;
   int y;
   bool ehNavio = false;
   String grifo = ' ';
   String cor;
+  Equipe? equipeDona;
 
-  Ponto(this.x, this.y, this.ehNavio, [this.cor = Cores.colorReset]) {
+  Ponto(this.x, this.y, this.ehNavio, [Equipe? equipeDona, this.cor = Cores.colorReset]) {
     x = x;
     y = y;
     ehNavio = ehNavio;
@@ -49,6 +57,10 @@ class Ponto {
     return Cores.texto(this.grifo.toString(), this.cor);
   }
 
+  void  definirEquipe(Equipe esquipe) {
+      this.equipeDona = esquipe;
+  }
+
 }
 
 class Equipe {
@@ -59,7 +71,7 @@ class Equipe {
   Equipe([this.nome = '', this.cor = Cores.colorReset, this.acertos = 0]) {
     // Código de debug, se o nome já for selecionado na criação, quer dizer q é teste.
     // ToDO: Remover
-    if (this.nome.length >= 1) {return;}
+    if (this.cor != Cores.colorReset) {return;}
     
 
     // Selecionar o nome da equipe;
@@ -107,6 +119,7 @@ class Equipe {
     return Cores.texto(this.nome, this.cor);
   }
 
+
   bool inicializarNavios(Tabuleiro mapa) {
     clearTerminal();
     
@@ -114,46 +127,21 @@ class Equipe {
       if (y <= mapa.TAMANHO_TABULEIRO-3 && x <= mapa.TAMANHO_TABULEIRO-3) return null;
 
       mapa.tabuleiro[x][y].cor = Cores.vermelho;
-      mapa.tabuleiro[x][y].grifo = 'X';
+      mapa.tabuleiro[x][y].grifo = Simbolos.erro;
     }
     
     mapa.imprimirTabuleiro(false, Cores.colorReset, mudarBorda);
     print('\n' + this.getNameComCor() + ', selecione onde colocar o seu navio');
     print("Digite: Letra Número, Exemplo: E 4");
 
-    int y;
-    int x;
-
     // Isso tem muitas condições, melhor fazer um While True e só acabar ele com um break.
-    while (true){
-      String? input = stdin.readLineSync();
-      // É usado continue para acabar a ITERAÇÃO atual, não acabar com o loop
-      if (input == null) continue;
-      if (!input.contains(' ')) {Cores.printar('Deve ser separado!', Cores.vermelho); continue;}
-      List<String> dividido = input.split(' ');
-
-      if (int.tryParse(dividido[1]) == null) {Cores.printar('Deve ser separado ou não é número.', Cores.vermelho); continue;}
-      
-      String letra = dividido[0].toLowerCase();
-      int numero = int.parse(dividido[1]);
-      // Verificar se está nas letras certas
-      if (!letra.contains(RegExp('[a-n]'))) {print('Não pode colocar ai!'); continue;};
-      // Verificar se está no número certo
-      if (numero >= mapa.TAMANHO_TABULEIRO-1) {print('Não pode colocar ai!'); continue;};
-
-      y = letra.codeUnitAt(0)-97;
-      x = numero-1;
-
-      break;
-    }
+    int x, y;
+    (x, y) = mapa.verificarInputDoXeY(this, '[a-n]', 1);
     clearTerminal();
 
     // Vê se não tem nenhum outro navio nessa localização.
     Pattern? naoPode = mapa.previaNavios(x, y);
-    
-    // if (!deuMerda) {
-    //   
-    // };
+
 
     mapa.imprimirTabuleiro(false);
     print('Colocar o navio na (V) vertical ou (H) horizontal?');
@@ -162,21 +150,23 @@ class Equipe {
       String? input = stdin.readLineSync();
       if (input == null) continue;
       input = input[0].toLowerCase();
+
       if (naoPode != null) {
+
         if (input.contains(naoPode)) {
           clearTerminal();
-          mapa._zerar();
+          mapa._zerar(true);
           print('Vocês colocaram o navio no mesmo local... Terão que refazer tudo');
           return false;
         }
       }
 
       if (input == 'v' ) {
-        mapa.colocarNavio(x, y, true);
+        mapa.colocarNavio(x, y, true, this);
         break;
       }
       else if (input == 'h') {
-        mapa.colocarNavio(x, y, false);
+        mapa.colocarNavio(x, y, false, this);
         break;
       }
     }
@@ -198,11 +188,18 @@ class Tabuleiro {
   List<Equipe> equipes = [new Equipe('Draguisada', Cores.vermelho), new Equipe('Invertebrados', Cores.verde)];
   
   // * Real oficial
-  // List<Equipe> equipes = [new Equipe(), new Equipe()];
+  // List<Equipe> equipes = [new Equipe('Primeira equipe'), new Equipe('Segunda equipe')];
   
   // Quando inicaliza o tabuleiro, é criado o tabuleiro e as equipes.
   Tabuleiro(this.TAMANHO_TABULEIRO, [this.rodada = 0]) {
     _criarTabuleiro();
+  }
+
+  String imprimirNoMeioDaLinha(String texto, int TAMANHO_LINHA, [corInicial = Cores.colorReset]) {
+    // Calculos matemáticos para deixar o texto no meio dado um determinado TAMANHO_LINHA;
+    final int METADE_LINHA = (TAMANHO_LINHA/2).ceil();
+    String metadeVazio = ' ' * (METADE_LINHA-(texto.length/2).ceil());
+    return (corInicial + metadeVazio + texto + (texto.length % 2 == 0 ? metadeVazio.replaceFirst(' ', '') : metadeVazio) + Cores.colorReset);
   }
 
   // Itera por 2 listas de valores de TAMANHO_TABULEIRO, criando uma matrix.
@@ -252,17 +249,9 @@ class Tabuleiro {
   String _imprimirPlacar(int y, bool terTexto) {
     // Essa função é chamada toda linha, mostrando o y, isso faz com que possamos mudar o conteúdo dependendo da linha;
     // Como esta função tem que executar em todos os prints, e vários no mesmo y, apenas imprimirá nas mesmas colunas que as letras.
-
     const int TAMANHO_LINHA = 17;
-    final int METADE_LINHA = (TAMANHO_LINHA/2).ceil();
     
     // Função para deixar mais bonito
-    String imprimirNoMeioDaLinha(String texto, [String corInicial = Cores.colorReset]) {
-      // Calculos matemáticos para deixar o texto no meio dado um determinado TAMANHO_LINHA;
-      String metadeVazio = ' ' * (METADE_LINHA-(texto.length/2).ceil());
-      return (corInicial + metadeVazio + texto + (texto.length % 2 == 0 ? metadeVazio.replaceFirst(' ', '') : metadeVazio) + Cores.colorReset);
-    }
-    
     // ! String inicial - "Cabeçalho"
     String placarDestaLinha = Cores.colorReset + ' |';
 
@@ -279,17 +268,17 @@ class Tabuleiro {
     // ! String do meio - "Corpo"
     if (terTexto) {
       // * Nota: Tentei fazer isso com Switch case mas ficou mt torto.
-      if(y == 1) placarDestaLinha += imprimirNoMeioDaLinha('PLACAR');
+      if(y == 1) placarDestaLinha += imprimirNoMeioDaLinha('PLACAR', TAMANHO_LINHA);
 
-      if(y == 2) placarDestaLinha += imprimirNoMeioDaLinha(equipes[0].nome, equipes[0].cor);
-      if(y == 3) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[0].acertos}', equipes[0].cor);
+      if(y == 2) placarDestaLinha += imprimirNoMeioDaLinha(equipes[0].nome, TAMANHO_LINHA, equipes[0].cor);
+      if(y == 3) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[0].acertos}', TAMANHO_LINHA, equipes[0].cor);
 
-      if(y == 6) placarDestaLinha += imprimirNoMeioDaLinha(equipes[1].nome, equipes[1].cor);
-      if(y == 7) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[1].acertos}', equipes[1].cor);
+      if(y == 6) placarDestaLinha += imprimirNoMeioDaLinha(equipes[1].nome, TAMANHO_LINHA, equipes[1].cor);
+      if(y == 7) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[1].acertos}', TAMANHO_LINHA, equipes[1].cor);
 
 
-      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Tentativas totais');
-      if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha(this.rodada.toString());
+      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Tentativas totais', TAMANHO_LINHA);
+      if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha(this.rodada.toString(), TAMANHO_LINHA);
       // placarDestaLinha += imprimirNoMeioDaLinha('X'*y);
 
     }
@@ -302,14 +291,16 @@ class Tabuleiro {
     return placarDestaLinha;
   }
 
-  void _imprimirHeader([String header = '']) {
+  void _imprimirHeader([String header = '', String cor = Cores.colorReset]) {
     // O desenho ascii pego https://patorjk.com/software/taag/#p=display&f=AMC+Thin&t=Batalha+naval&x=sleek&v=4&h=4&w=80&we=false
-    if (header == '') header = '\n███████████             █████              ████  █████                                                              ████\n▒▒███▒▒▒▒▒███           ▒▒███              ▒▒███ ▒▒███                                                              ▒▒███ \n ▒███    ▒███  ██████   ███████    ██████   ▒███  ▒███████    ██████      ████████    ██████   █████ █████  ██████   ▒███ \n ▒██████████  ▒▒▒▒▒███ ▒▒▒███▒    ▒▒▒▒▒███  ▒███  ▒███▒▒███  ▒▒▒▒▒███    ▒▒███▒▒███  ▒▒▒▒▒███ ▒▒███ ▒▒███  ▒▒▒▒▒███  ▒███ \n ▒███▒▒▒▒▒███  ███████   ▒███      ███████  ▒███  ▒███ ▒███   ███████     ▒███ ▒███   ███████  ▒███  ▒███   ███████  ▒███ \n ▒███    ▒███ ███▒▒███   ▒███ ███ ███▒▒███  ▒███  ▒███ ▒███  ███▒▒███     ▒███ ▒███  ███▒▒███  ▒▒███ ███   ███▒▒███  ▒███ \n ███████████ ▒▒████████  ▒▒█████ ▒▒████████ █████ ████ █████▒▒████████    ████ █████▒▒████████  ▒▒█████   ▒▒████████ █████\n ▒▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒    ▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒▒     ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ \n ';
+    if (header == '') header = Cores.texto('\n███████████             █████              ████  █████                                                              ████\n▒▒███▒▒▒▒▒███           ▒▒███              ▒▒███ ▒▒███                                                              ▒▒███ \n ▒███    ▒███  ██████   ███████    ██████   ▒███  ▒███████    ██████      ████████    ██████   █████ █████  ██████   ▒███ \n ▒██████████  ▒▒▒▒▒███ ▒▒▒███▒    ▒▒▒▒▒███  ▒███  ▒███▒▒███  ▒▒▒▒▒███    ▒▒███▒▒███  ▒▒▒▒▒███ ▒▒███ ▒▒███  ▒▒▒▒▒███  ▒███ \n ▒███▒▒▒▒▒███  ███████   ▒███      ███████  ▒███  ▒███ ▒███   ███████     ▒███ ▒███   ███████  ▒███  ▒███   ███████  ▒███ \n ▒███    ▒███ ███▒▒███   ▒███ ███ ███▒▒███  ▒███  ▒███ ▒███  ███▒▒███     ▒███ ▒███  ███▒▒███  ▒▒███ ███   ███▒▒███  ▒███ \n ███████████ ▒▒████████  ▒▒█████ ▒▒████████ █████ ████ █████▒▒████████    ████ █████▒▒████████  ▒▒█████   ▒▒████████ █████\n ▒▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒    ▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒▒     ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ \n ', cor);
     print(header);
   }
 
-  void imprimirTabuleiroDeJogo() {
-    _imprimirHeader();
+  void imprimirTabuleiroDeJogo(Equipe equipe) {
+    _imprimirHeader('', equipe.cor);
+
+    print('\n' + this.imprimirNoMeioDaLinha('Turno de ${equipe.getNameComCor()}', 120));
     imprimirTabuleiro();
   }
 
@@ -326,15 +317,23 @@ class Tabuleiro {
   }
 
     // Se não for vertical, vai ser horizontal
-  void colocarNavio(int x, int y, bool vertical) {
-
+  void colocarNavio(int x, int y, bool vertical, Equipe equipeCriador) {
+    this.tabuleiro[x][y].ehNavio = true;
+    this.tabuleiro[x][y].definirEquipe(equipeCriador);
+    
     if (vertical) {
-      this.tabuleiro[x][y].ehNavio = true;
       this.tabuleiro[x][y+1].ehNavio = true;
       this.tabuleiro[x][y+2].ehNavio = true;
+      
+      this.tabuleiro[x][y+1].definirEquipe(equipeCriador);
+      this.tabuleiro[x][y+2].definirEquipe(equipeCriador);
+
     } else {
       this.tabuleiro[x+1][y].ehNavio = true;
       this.tabuleiro[x+2][y].ehNavio = true;
+
+      this.tabuleiro[x+1][y].definirEquipe(equipeCriador);
+      this.tabuleiro[x+2][y].definirEquipe(equipeCriador);
     }
   }
 
@@ -347,14 +346,52 @@ class Tabuleiro {
     this.tabuleiro[x+1][y].grifo = Cores.texto('H', Cores.magenta);
     this.tabuleiro[x+2][y].grifo = Cores.texto('H', Cores.magenta);
 
-    if (this.tabuleiro[x][y].ehNavio) return RegExp('V-H');
+    if (this.tabuleiro[x][y].ehNavio) return RegExp('[h-v]');
 
     if (this.tabuleiro[x][y+1].ehNavio ||this.tabuleiro[x][y+2].ehNavio) return RegExp('v');
     
     if (this.tabuleiro[x+1][y].ehNavio || this.tabuleiro[x+2][y].ehNavio) return RegExp('h');
-    
+
     return null;
   }
+
+  // Record == tupla em python
+  (int, int) verificarInputDoXeY(Equipe equipeAtual, [String letrasPossiveis = '[a-p]', int diminuidorTabuleiro = 0]) {
+    int x, y;
+    while (true){
+      String? input = stdin.readLineSync();
+      // É usado continue para acabar a ITERAÇÃO atual, não acabar com o loop
+      if (input == null) continue;
+      // if (!input.contains(' ')) {Cores.printar('Deve ser separado!', Cores.vermelho); continue;}
+      List<String> dividido;
+      if (!input.contains(' ')) {
+        dividido = input.split('');  
+      } else {
+        dividido = input.split(' ');
+      }
+
+      if (int.tryParse(dividido[1]) == null) {Cores.printar('Deve ser separado ou não é número.', Cores.vermelho); continue;}
+      
+      String letra = dividido[0].toLowerCase();
+      int numero = int.parse(dividido[1]);
+      // Verificar se está nas letras certas
+      if (!letra.contains(RegExp(letrasPossiveis))) {print('Não pode colocar ai!'); continue;};
+      // Verificar se está no número certo
+      if (numero > this.TAMANHO_TABULEIRO-diminuidorTabuleiro || numero <= 0) {print('Não pode colocar ai!'); continue;};
+      
+
+      y = letra.codeUnitAt(0)-97;
+      x = numero-1;
+
+      //Verifica se o local já não está ocupado
+      if (this.tabuleiro[x][y].grifo != ' ') {print('Não pode colocar ai!'); continue;};
+
+      if(equipeAtual == this.tabuleiro[x][y].equipeDona) {print('...'); continue;};
+
+      break;
+    }
+    return (x, y);
+    }
 }
 
 
