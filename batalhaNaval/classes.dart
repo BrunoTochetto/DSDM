@@ -8,6 +8,8 @@ void clearTerminal() {
   stdout.write('\x1B[2J\x1B[0;0H');
 }
 
+void nada([dynamic a, dynamic b, dynamic c, dynamic d]) {}
+
 // Cores para o terminal, pegados na net
 class Cores {
   static const String ansiEscape = '\x1B';
@@ -20,18 +22,31 @@ class Cores {
   static const String ciano = '$ansiEscape[36m';
 
   static const List<String> lista = [colorReset, vermelho, verde, amarelo, azul, magenta, ciano];
+
+  static String texto(String texto, String cor) {return (cor + texto + Cores.colorReset);}
+  static void printar(String texto, String cor) {print(cor + texto + Cores.colorReset);}
 }
 class Ponto {
   int x;
   int y;
   bool ehNavio = false;
-  String? grifo = ' ';
+  String grifo = ' ';
+  String cor;
 
-  Ponto(this.x, this.y, this.ehNavio) {
+  Ponto(this.x, this.y, this.ehNavio, [this.cor = Cores.colorReset]) {
     x = x;
     y = y;
     ehNavio = ehNavio;
     grifo;
+  }
+
+  void setGrifo(String grifo, [String cor = Cores.ansiEscape]) {
+    this.grifo = grifo;
+    if (cor != Cores.ansiEscape) this.cor = cor;
+  }
+
+  String getGrifoComCor() {
+    return Cores.texto(this.grifo.toString(), this.cor);
   }
 
 }
@@ -89,8 +104,87 @@ class Equipe {
   }
 
   String getNameComCor() {
-    return (this.cor + this.nome + Cores.colorReset);
+    return Cores.texto(this.nome, this.cor);
   }
+
+  bool inicializarNavios(Tabuleiro mapa) {
+    clearTerminal();
+    
+    void mudarBorda(int x, int y) {
+      if (y <= mapa.TAMANHO_TABULEIRO-3 && x <= mapa.TAMANHO_TABULEIRO-3) return null;
+
+      mapa.tabuleiro[x][y].cor = Cores.vermelho;
+      mapa.tabuleiro[x][y].grifo = 'X';
+    }
+    
+    mapa.imprimirTabuleiro(false, Cores.colorReset, mudarBorda);
+    print('\n' + this.getNameComCor() + ', selecione onde colocar o seu navio');
+    print("Digite: Letra Número, Exemplo: E 4");
+
+    int y;
+    int x;
+
+    // Isso tem muitas condições, melhor fazer um While True e só acabar ele com um break.
+    while (true){
+      String? input = stdin.readLineSync();
+      // É usado continue para acabar a ITERAÇÃO atual, não acabar com o loop
+      if (input == null) continue;
+      if (!input.contains(' ')) {Cores.printar('Deve ser separado!', Cores.vermelho); continue;}
+      List<String> dividido = input.split(' ');
+
+      if (int.tryParse(dividido[1]) == null) {Cores.printar('Deve ser separado ou não é número.', Cores.vermelho); continue;}
+      
+      String letra = dividido[0].toLowerCase();
+      int numero = int.parse(dividido[1]);
+      // Verificar se está nas letras certas
+      if (!letra.contains(RegExp('[a-n]'))) {print('Não pode colocar ai!'); continue;};
+      // Verificar se está no número certo
+      if (numero >= mapa.TAMANHO_TABULEIRO-1) {print('Não pode colocar ai!'); continue;};
+
+      y = letra.codeUnitAt(0)-97;
+      x = numero-1;
+
+      break;
+    }
+    clearTerminal();
+
+    // Vê se não tem nenhum outro navio nessa localização.
+    Pattern? naoPode = mapa.previaNavios(x, y);
+    
+    // if (!deuMerda) {
+    //   
+    // };
+
+    mapa.imprimirTabuleiro(false);
+    print('Colocar o navio na (V) vertical ou (H) horizontal?');
+
+    while(true) {
+      String? input = stdin.readLineSync();
+      if (input == null) continue;
+      input = input[0].toLowerCase();
+      if (naoPode != null) {
+        if (input.contains(naoPode)) {
+          clearTerminal();
+          mapa._zerar();
+          print('Vocês colocaram o navio no mesmo local... Terão que refazer tudo');
+          return false;
+        }
+      }
+
+      if (input == 'v' ) {
+        mapa.colocarNavio(x, y, true);
+        break;
+      }
+      else if (input == 'h') {
+        mapa.colocarNavio(x, y, false);
+        break;
+      }
+    }
+    clearTerminal();
+    mapa._zerar();
+    return true;
+  }
+  
   
 }
 
@@ -123,13 +217,12 @@ class Tabuleiro {
   }
 
   // Um print bonito. Tem muita conta envolvida, me empolguei e fiz tudo comentado mas nem precisa.
-  void imprimirTabuleiro([String cor =  Cores.colorReset]) {
+  void imprimirTabuleiro([bool mostrarPlacar = true, String cor =  Cores.colorReset, Function regra = nada]) {
     cor = ' '*17 + cor;
-    _imprimirHeader();
     String linhaFinalNumero = '';
     // Responsável por fazer o cabeçalho inicial do tabuleiro, também usado para não precisar de lógico de inicio e fim para fazer uma impressão certa.
     // Como é em cima, colocar bonitinho as bordas, _border radius 2px_
-    print(cor + '  /' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '\\ ' + _imprimirPlacar(-1, false) + Cores.colorReset);
+    print(cor + '  /' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '\\ ' + (mostrarPlacar ? _imprimirPlacar(-1, false) : '') + Cores.colorReset);
     for (int y = 0; y < this.TAMANHO_TABULEIRO; y++) {
       linhaFinalNumero += ' ${y+1} ' + (y >= 8 ? '': ' '); // Explicado lá em baixo
       // Coloca a letra do y, pegando a tabela ASCII e adicionando a letra com base no seu valor.
@@ -138,16 +231,17 @@ class Tabuleiro {
       for (int x = 0; x < this.TAMANHO_TABULEIRO; x++) {
         
         // Para imprimir tudo na msm linha (Que eu achei até agora), é precisa criar uma String e depois imprimir ela.
-        linhaAtual += '${this.tabuleiro[x][y].grifo} | '; // Sabendo que já tem a parede inicial '| ', então vai adicionando até ficar X | até o final
+        regra(x, y);
+        linhaAtual += '${this.tabuleiro[x][y].getGrifoComCor()} | '; // Sabendo que já tem a parede inicial '| ', então vai adicionando até ficar X | até o final
       }
       // Sabendo que já tem as linhas de cima, ele printa o meio e então para baixo, e essa lógica é continuada pelo resto do tabuleiro
-      print(cor + linhaAtual + _imprimirPlacar(y, true) + Cores.colorReset);
+      print(cor + linhaAtual + (mostrarPlacar ? _imprimirPlacar(y, true) : '') + Cores.colorReset);
       // Lógica para deixar o meio do tabuleiro mais bonito. A conta basicamente faz:
       // | de inicio, e pelo meio é 3x—, então um +. Mas, pro final não pode ter o +, então se faz 3x— denovo e fecha com a barra.
-      if (y != this.TAMANHO_TABULEIRO-1) print(cor + ' -|' +(('—'*3 + '*')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '| ' + _imprimirPlacar(y, false) + Cores.colorReset) ;
+      if (y != this.TAMANHO_TABULEIRO-1) print(cor + ' -|' +(('—'*3 + '*')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '| ' + (mostrarPlacar ? _imprimirPlacar(y, false) : '') + Cores.colorReset) ;
     }
     // Imprimir a parte de baixo, com o _border radius_
-    print(cor + '  \\' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '/ ' + _imprimirPlacar(this.TAMANHO_TABULEIRO, false) + Cores.colorReset);
+    print(cor + '  \\' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '/ ' + (mostrarPlacar ? _imprimirPlacar(this.TAMANHO_TABULEIRO, false) : '') + Cores.colorReset);
     // Imprimir os número também. Como é um quadrado perfeito, eu fui colocando os número pela repetição do Y para não ter que fazer outro loop aqui em baixo
     // Tem uma lógica para: Quando o digito foi único, coloca 2 espaços depois do número para alinhá-los na célula.
     // Assim que começar a ter 2 números, tira um dos espaços para alinhas os números de 2 digitos na célula.
@@ -208,13 +302,59 @@ class Tabuleiro {
     return placarDestaLinha;
   }
 
-  void _imprimirHeader() {
+  void _imprimirHeader([String header = '']) {
     // O desenho ascii pego https://patorjk.com/software/taag/#p=display&f=AMC+Thin&t=Batalha+naval&x=sleek&v=4&h=4&w=80&we=false
-    String ascii = '\n███████████             █████              ████  █████                                                              ████\n▒▒███▒▒▒▒▒███           ▒▒███              ▒▒███ ▒▒███                                                              ▒▒███ \n ▒███    ▒███  ██████   ███████    ██████   ▒███  ▒███████    ██████      ████████    ██████   █████ █████  ██████   ▒███ \n ▒██████████  ▒▒▒▒▒███ ▒▒▒███▒    ▒▒▒▒▒███  ▒███  ▒███▒▒███  ▒▒▒▒▒███    ▒▒███▒▒███  ▒▒▒▒▒███ ▒▒███ ▒▒███  ▒▒▒▒▒███  ▒███ \n ▒███▒▒▒▒▒███  ███████   ▒███      ███████  ▒███  ▒███ ▒███   ███████     ▒███ ▒███   ███████  ▒███  ▒███   ███████  ▒███ \n ▒███    ▒███ ███▒▒███   ▒███ ███ ███▒▒███  ▒███  ▒███ ▒███  ███▒▒███     ▒███ ▒███  ███▒▒███  ▒▒███ ███   ███▒▒███  ▒███ \n ███████████ ▒▒████████  ▒▒█████ ▒▒████████ █████ ████ █████▒▒████████    ████ █████▒▒████████  ▒▒█████   ▒▒████████ █████\n ▒▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒    ▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒▒     ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ \n ';
-    print(ascii);
+    if (header == '') header = '\n███████████             █████              ████  █████                                                              ████\n▒▒███▒▒▒▒▒███           ▒▒███              ▒▒███ ▒▒███                                                              ▒▒███ \n ▒███    ▒███  ██████   ███████    ██████   ▒███  ▒███████    ██████      ████████    ██████   █████ █████  ██████   ▒███ \n ▒██████████  ▒▒▒▒▒███ ▒▒▒███▒    ▒▒▒▒▒███  ▒███  ▒███▒▒███  ▒▒▒▒▒███    ▒▒███▒▒███  ▒▒▒▒▒███ ▒▒███ ▒▒███  ▒▒▒▒▒███  ▒███ \n ▒███▒▒▒▒▒███  ███████   ▒███      ███████  ▒███  ▒███ ▒███   ███████     ▒███ ▒███   ███████  ▒███  ▒███   ███████  ▒███ \n ▒███    ▒███ ███▒▒███   ▒███ ███ ███▒▒███  ▒███  ▒███ ▒███  ███▒▒███     ▒███ ▒███  ███▒▒███  ▒▒███ ███   ███▒▒███  ▒███ \n ███████████ ▒▒████████  ▒▒█████ ▒▒████████ █████ ████ █████▒▒████████    ████ █████▒▒████████  ▒▒█████   ▒▒████████ █████\n ▒▒▒▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒    ▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒▒     ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ \n ';
+    print(header);
   }
 
+  void imprimirTabuleiroDeJogo() {
+    _imprimirHeader();
+    imprimirTabuleiro();
+  }
 
+  void _zerar([bool tirarNavios = false]) {
+    mudarBorda(int x, int y) {
+      // if (x >= 2 && y >= 2 && y <= this.TAMANHO_TABULEIRO-3 && x <= this.TAMANHO_TABULEIRO-3) return null;
+
+      this.tabuleiro[x][y].cor = Cores.colorReset;
+      this.tabuleiro[x][y].grifo = ' ';
+      if (tirarNavios) this.tabuleiro[x][y].ehNavio = false;
+    };
+    imprimirTabuleiro(false, Cores.colorReset, mudarBorda);
+    clearTerminal();
+  }
+
+    // Se não for vertical, vai ser horizontal
+  void colocarNavio(int x, int y, bool vertical) {
+
+    if (vertical) {
+      this.tabuleiro[x][y].ehNavio = true;
+      this.tabuleiro[x][y+1].ehNavio = true;
+      this.tabuleiro[x][y+2].ehNavio = true;
+    } else {
+      this.tabuleiro[x+1][y].ehNavio = true;
+      this.tabuleiro[x+2][y].ehNavio = true;
+    }
+  }
+
+  Pattern? previaNavios(int x, int y) {
+    this.tabuleiro[x][y].grifo = Cores.texto('X', Cores.vermelho);
+    
+    this.tabuleiro[x][y+1].grifo = Cores.texto('V', Cores.ciano);
+    this.tabuleiro[x][y+2].grifo = Cores.texto('V', Cores.ciano);
+
+    this.tabuleiro[x+1][y].grifo = Cores.texto('H', Cores.magenta);
+    this.tabuleiro[x+2][y].grifo = Cores.texto('H', Cores.magenta);
+
+    if (this.tabuleiro[x][y].ehNavio) return RegExp('V-H');
+
+    if (this.tabuleiro[x][y+1].ehNavio ||this.tabuleiro[x][y+2].ehNavio) return RegExp('v');
+    
+    if (this.tabuleiro[x+1][y].ehNavio || this.tabuleiro[x+2][y].ehNavio) return RegExp('h');
+    
+    return null;
+  }
 }
 
 
