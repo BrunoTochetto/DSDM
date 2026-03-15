@@ -142,6 +142,7 @@ class Equipe {
 
     while(true) {
       clearTerminal();
+      mapa.imprimirTabuleiro(false);
       print('Colocar o navio na (V) vertical ou (H) horizontal?');
       String? input = stdin.readLineSync();
       if (input == null || input.length < 1) continue;
