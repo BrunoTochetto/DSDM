@@ -1,7 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:math';
 
 void clearTerminal() {
   // ANSI escape code to clear the entire screen and move the cursor to 0;0
@@ -70,9 +67,6 @@ class Equipe {
 
   Equipe([this.nome = '', this.cor = Cores.colorReset, this.acertos = 0]) {
     // Código de debug, se o nome já for selecionado na criação, quer dizer q é teste.
-    // // ToDO: Remover
-    // if (this.cor != Cores.colorReset) {return;}
-    
 
     // Selecionar o nome da equipe;
     String? nome;
@@ -144,18 +138,22 @@ class Equipe {
 
 
     mapa.imprimirTabuleiro(false);
-    print('Colocar o navio na (V) vertical ou (H) horizontal?');
+    
 
     while(true) {
+      clearTerminal();
+      print('Colocar o navio na (V) vertical ou (H) horizontal?');
       String? input = stdin.readLineSync();
-      if (input == null) continue;
+      if (input == null || input.length < 1) continue;
       input = input[0].toLowerCase();
 
+      // Como as pessoas não podem se ver onde colocaram os navios, tem chance delas terem colocado no mesmo local.
+      //A função de prévia já faz esse check, e sê eles colocaram em algum lugar preenchido e escolherem esse tal lugar, vão recomeçar tudo denovo. 
       if (naoPode != null) {
 
         if (input.contains(naoPode)) {
           clearTerminal();
-          mapa._zerar(true);
+          mapa.zerar(true);
           print('Vocês colocaram o navio no mesmo local... Terão que refazer tudo');
           return false;
         }
@@ -171,7 +169,7 @@ class Equipe {
       }
     }
     clearTerminal();
-    mapa._zerar();
+    mapa.zerar();
     return true;
   }
   
@@ -277,7 +275,7 @@ class Tabuleiro {
       if(y == 7) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[1].acertos}', TAMANHO_LINHA, equipes[1].cor);
 
 
-      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Tentativas totais', TAMANHO_LINHA);
+      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Rodada ', TAMANHO_LINHA);
       if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha(this.rodada.toString(), TAMANHO_LINHA);
       // placarDestaLinha += imprimirNoMeioDaLinha('X'*y);
 
@@ -304,7 +302,7 @@ class Tabuleiro {
     imprimirTabuleiro();
   }
 
-  void _zerar([bool tirarNavios = false]) {
+  void zerar([bool tirarNavios = false]) {
     mudarBorda(int x, int y) {
       // if (x >= 2 && y >= 2 && y <= this.TAMANHO_TABULEIRO-3 && x <= this.TAMANHO_TABULEIRO-3) return null;
 
@@ -362,13 +360,18 @@ class Tabuleiro {
       String? input = stdin.readLineSync();
       // É usado continue para acabar a ITERAÇÃO atual, não acabar com o loop
       if (input == null) continue;
+      
       // if (!input.contains(' ')) {Cores.printar('Deve ser separado!', Cores.vermelho); continue;}
       List<String> dividido;
+
       if (!input.contains(' ')) {
         dividido = input.split('');  
       } else {
         dividido = input.split(' ');
       }
+
+      // Se não, dá um RangeError
+      if (dividido.length <= 1) continue;
 
       if (int.tryParse(dividido[1]) == null) {Cores.printar('Deve ser separado ou não é número.', Cores.vermelho); continue;}
       
