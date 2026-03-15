@@ -276,7 +276,7 @@ class Tabuleiro {
       if(y == 7) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[1].acertos}', TAMANHO_LINHA, equipes[1].cor);
 
 
-      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Rodada ', TAMANHO_LINHA);
+      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Rodada', TAMANHO_LINHA);
       if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha(this.rodada.toString(), TAMANHO_LINHA);
       // placarDestaLinha += imprimirNoMeioDaLinha('X'*y);
 
@@ -304,6 +304,7 @@ class Tabuleiro {
   }
 
   void zerar([bool tirarNavios = false]) {
+    this.rodada = 0;
     mudarBorda(int x, int y) {
       // if (x >= 2 && y >= 2 && y <= this.TAMANHO_TABULEIRO-3 && x <= this.TAMANHO_TABULEIRO-3) return null;
 

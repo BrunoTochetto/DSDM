@@ -68,6 +68,8 @@ main() {
       } else if (input.toLowerCase() == 's') {
         clearTerminal();
         mapa.zerar();
+        mapa.equipes[0].acertos = 0;
+        mapa.equipes[0].acertos = 1;
         
         break;
       }
