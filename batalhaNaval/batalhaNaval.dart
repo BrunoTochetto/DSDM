@@ -5,21 +5,19 @@ import 'classes.dart';
 /*
 Dúvidas para tirar:
 Como eu faria para deixar a "Equipe" na classe mapa sem precisar enviar ela toda vez
-
-
  */
 
 main() {
   int turno = 0;
   bool jogar = true;
   // Inicializa o tabuleiro e as equipes aqui.
-  Tabuleiro mapa = new Tabuleiro(16);
+  Tabuleiro mapa = new Tabuleiro(16); 
 
   // Tem que cuidar pra se os 2 n colocaram o navio no mesmo local
   while (true){
-    mapa.equipes[0].inicializarNavios(mapa);
-    bool deuCerto = mapa.equipes[1].inicializarNavios(mapa);
-    if (deuCerto) break;
+    mapa.equipes[0].inicializarNavios(mapa); //função que pede para escolher onde colocar
+    bool deuCerto = mapa.equipes[1].inicializarNavios(mapa); 
+    if (deuCerto) break; //se ambas as equipes escolheram, segue para o próximo
     clearTerminal();
   }
 
@@ -29,9 +27,9 @@ main() {
     do {
       clearTerminal();    
       // Lógica dos turnos
-      Equipe equipeAtual = mapa.equipes[turno];
+      Equipe equipeAtual = mapa.equipes[turno]; //alterna entre equipe 0 = 1 e 1 = 2
       mapa.imprimirTabuleiroDeJogo(equipeAtual);
-      print('>>> ' + equipeAtual.getNameComCor() + ' tente adivinhar onde o adversário colocou seu navio. Coloque os valores separadas. Ex: E 11');
+      print('>>> ' + equipeAtual.getNameComCor() + ' tente adivinhar onde o adversário colocou seu navio. Coloque os valores separados. Ex: E 11');
       (x,y) = mapa.verificarInputDoXeY(equipeAtual, '[a-p]', 0);
       Ponto pontoSelecionado = mapa.tabuleiro[x][y];
 
@@ -45,7 +43,6 @@ main() {
         continue;
       }
 
-      if (turno == 1) mapa.rodada += 1;
 
       // Uso o oeprador XOR, com sua característica de "inverter" valores, faço que altere entre 0 e 1 o tudo.
       turno ^= 1;

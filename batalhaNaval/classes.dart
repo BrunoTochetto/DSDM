@@ -118,26 +118,25 @@ class Equipe {
     clearTerminal();
     
     void mudarBorda(int x, int y) {
-      if (y <= mapa.TAMANHO_TABULEIRO-3 && x <= mapa.TAMANHO_TABULEIRO-3) return null;
+      if (y <= mapa.TAMANHO_TABULEIRO-3 && x <= mapa.TAMANHO_TABULEIRO-3) return null; //avisa até onde o jogador pode escolher colocar o barco
 
       mapa.tabuleiro[x][y].cor = Cores.vermelho;
-      mapa.tabuleiro[x][y].grifo = Simbolos.erro;
+      mapa.tabuleiro[x][y].grifo = Simbolos.erro; //marca com um x vermelho esses lugares
     }
     
-    mapa.imprimirTabuleiro(false, Cores.colorReset, mudarBorda);
+    mapa.imprimirTabuleiro(false, Cores.colorReset, mudarBorda); //tabuleiro sem placar, sem cor com marcação de borda
     print('\n' + this.getNameComCor() + ', selecione onde colocar o seu navio');
     print("Digite: Letra Número, Exemplo: E 4");
 
     // Isso tem muitas condições, melhor fazer um While True e só acabar ele com um break.
     int x, y;
-    (x, y) = mapa.verificarInputDoXeY(this, '[a-n]', 1);
+    (x, y) = mapa.verificarInputDoXeY(this, '[a-n]', 1); //função transforma em coordenada; parâmetros validam a resposta do usuário
     clearTerminal();
 
     // Vê se não tem nenhum outro navio nessa localização.
     Pattern? naoPode = mapa.previaNavios(x, y);
 
-
-    mapa.imprimirTabuleiro(false);
+    mapa.imprimirTabuleiro(false); //sem placar
     
 
     while(true) {
@@ -145,13 +144,12 @@ class Equipe {
       mapa.imprimirTabuleiro(false);
       print('Colocar o navio na (V) vertical ou (H) horizontal?');
       String? input = stdin.readLineSync();
-      if (input == null || input.length < 1) continue;
-      input = input[0].toLowerCase();
+      if (input == null || input.length < 1) continue; //permite que erros aconteçam e só repeça para escolher 
+      input = input[0].toLowerCase(); //pega somente o primeiro caractere da string, ent 'v' e 'vertical' dão na mesma
 
       // Como as pessoas não podem se ver onde colocaram os navios, tem chance delas terem colocado no mesmo local.
       //A função de prévia já faz esse check, e sê eles colocaram em algum lugar preenchido e escolherem esse tal lugar, vão recomeçar tudo denovo. 
       if (naoPode != null) {
-
         if (input.contains(naoPode)) {
           clearTerminal();
           mapa.zerar(true);
@@ -165,7 +163,7 @@ class Equipe {
         break;
       }
       else if (input == 'h') {
-        mapa.colocarNavio(x, y, false, this);
+        mapa.colocarNavio(x, y, false, this); //false pq na função pede vertical, logo, não vertical
         break;
       }
     }
@@ -178,43 +176,37 @@ class Equipe {
 }
 
 class Tabuleiro {
-  List<List<Ponto>> tabuleiro = [];
+  List<List<Ponto>> tabuleiro = []; //especifica ao máximo o tipo -> que é lista de pontos, descrita pela classe Ponto
   final int TAMANHO_TABULEIRO;
-  // Queria fazer isso sem precisar colocar uma variável optativa
-  int rodada;
-  // ! Equipes
-  // * Teste
-  // List<Equipe> equipes = [new Equipe('Draguisada', Cores.vermelho), new Equipe('Invertebrados', Cores.verde)];
-  
-  // * Real oficial
+  // * criação de equipes
   List<Equipe> equipes = [new Equipe('Primeira equipe'), new Equipe('Segunda equipe')];
   
   // Quando inicaliza o tabuleiro, é criado o tabuleiro e as equipes.
-  Tabuleiro(this.TAMANHO_TABULEIRO, [this.rodada = 0]) {
+  Tabuleiro(this.TAMANHO_TABULEIRO) {
     _criarTabuleiro();
   }
 
   String imprimirNoMeioDaLinha(String texto, int TAMANHO_LINHA, [corInicial = Cores.colorReset]) {
     // Calculos matemáticos para deixar o texto no meio dado um determinado TAMANHO_LINHA;
     final int METADE_LINHA = (TAMANHO_LINHA/2).ceil();
-    String metadeVazio = ' ' * (METADE_LINHA-(texto.length/2).ceil());
+    String metadeVazio = ' ' * (METADE_LINHA-(texto.length/2).ceil()); //perfeccionismo do brunno
     return (corInicial + metadeVazio + texto + (texto.length % 2 == 0 ? metadeVazio.replaceFirst(' ', '') : metadeVazio) + Cores.colorReset);
   }
 
-  // Itera por 2 listas de valores de TAMANHO_TABULEIRO, criando uma matrix.
+  // Itera por 2 listas de valores de TAMANHO_TABULEIRO, criando uma matriz.
   void _criarTabuleiro() {
-    for (int y = 0; y < this.TAMANHO_TABULEIRO; y++) {
-      List<Ponto> linhaAtual = [];
+    for (int y = 0; y < this.TAMANHO_TABULEIRO; y++) { //para cada ponto vertical
+      List<Ponto> linhaAtual = []; //uma lista
       for (int x = 0; x < this.TAMANHO_TABULEIRO; x++) {
-        linhaAtual.add(Ponto(x, y, false));
+        linhaAtual.add(Ponto(x, y, false)); //preenchida por uma linha horizontal
       }
-      this.tabuleiro.add(linhaAtual);
+      this.tabuleiro.add(linhaAtual); 
     }
   }
 
   // Um print bonito. Tem muita conta envolvida, me empolguei e fiz tudo comentado mas nem precisa.
   void imprimirTabuleiro([bool mostrarPlacar = true, String cor =  Cores.colorReset, Function regra = nada]) {
-    cor = ' '*17 + cor;
+    cor = ' '*16 + cor;
     String linhaFinalNumero = '';
     // Responsável por fazer o cabeçalho inicial do tabuleiro, também usado para não precisar de lógico de inicio e fim para fazer uma impressão certa.
     // Como é em cima, colocar bonitinho as bordas, _border radius 2px_
@@ -236,7 +228,7 @@ class Tabuleiro {
       // | de inicio, e pelo meio é 3x—, então um +. Mas, pro final não pode ter o +, então se faz 3x— denovo e fecha com a barra.
       if (y != this.TAMANHO_TABULEIRO-1) print(cor + ' -|' +(('—'*3 + '*')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '| ' + (mostrarPlacar ? _imprimirPlacar(y, false) : '') + Cores.colorReset) ;
     }
-    // Imprimir a parte de baixo, com o _border radius_
+  // Imprimir a parte de baixo, com o _border radius_   sqza\EFVWDSX
     print(cor + '  \\' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '/ ' + (mostrarPlacar ? _imprimirPlacar(this.TAMANHO_TABULEIRO, false) : '') + Cores.colorReset);
     // Imprimir os número também. Como é um quadrado perfeito, eu fui colocando os número pela repetição do Y para não ter que fazer outro loop aqui em baixo
     // Tem uma lógica para: Quando o digito foi único, coloca 2 espaços depois do número para alinhá-los na célula.
@@ -248,7 +240,7 @@ class Tabuleiro {
   String _imprimirPlacar(int y, bool terTexto) {
     // Essa função é chamada toda linha, mostrando o y, isso faz com que possamos mudar o conteúdo dependendo da linha;
     // Como esta função tem que executar em todos os prints, e vários no mesmo y, apenas imprimirá nas mesmas colunas que as letras.
-    const int TAMANHO_LINHA = 17;
+    const int TAMANHO_LINHA = 19;
     
     // Função para deixar mais bonito
     // ! String inicial - "Cabeçalho"
@@ -276,8 +268,8 @@ class Tabuleiro {
       if(y == 7) placarDestaLinha += imprimirNoMeioDaLinha('Acertos: ${equipes[1].acertos}', TAMANHO_LINHA, equipes[1].cor);
 
 
-      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha('Rodada', TAMANHO_LINHA);
-      if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha(this.rodada.toString(), TAMANHO_LINHA);
+      if(y == this.TAMANHO_TABULEIRO-2) placarDestaLinha += imprimirNoMeioDaLinha("Trabalho feito por:", TAMANHO_LINHA);
+      if(y == this.TAMANHO_TABULEIRO-1) placarDestaLinha += imprimirNoMeioDaLinha("Brunes", TAMANHO_LINHA);
       // placarDestaLinha += imprimirNoMeioDaLinha('X'*y);
 
     }
@@ -304,7 +296,6 @@ class Tabuleiro {
   }
 
   void zerar([bool tirarNavios = false]) {
-    this.rodada = 0;
     mudarBorda(int x, int y) {
       // if (x >= 2 && y >= 2 && y <= this.TAMANHO_TABULEIRO-3 && x <= this.TAMANHO_TABULEIRO-3) return null;
 
