@@ -87,7 +87,7 @@ class Equipe {
     selecaoCores += "${Cores.azul} 4: Azul ${Cores.colorReset}";
     selecaoCores += "${Cores.magenta} 5: Magenta ${Cores.colorReset}";
     selecaoCores += "${Cores.ciano} 6: Ciano ${Cores.colorReset}";
-    dynamic cor;
+    String? cor;
     while (true) {
       print('Selecione a cor da equipe: $nome');
       print(selecaoCores);
@@ -125,12 +125,11 @@ class Equipe {
     }
     
     mapa.imprimirTabuleiro(false, Cores.colorReset, mudarBorda); //tabuleiro sem placar, sem cor com marcação de borda
-    print('\n' + this.getNameComCor() + ', selecione onde colocar o seu navio');
-    print("Digite: Letra Número, Exemplo: E 4");
+    String pergunta = '\n' + this.getNameComCor() + ', selecione onde colocar o seu navio' + '\n' + "Digite: Letra Número, Exemplo: E 4";
 
     // Isso tem muitas condições, melhor fazer um While True e só acabar ele com um break.
     int x, y;
-    (x, y) = mapa.verificarInputDoXeY(this, '[a-n]', 1); //função transforma em coordenada; parâmetros validam a resposta do usuário
+    (x, y) = mapa.verificarInputDoXeY(this, pergunta,'[a-n]', 1); //função transforma em coordenada; parâmetros validam a resposta do usuário
     clearTerminal();
 
     // Vê se não tem nenhum outro navio nessa localização.
@@ -228,7 +227,7 @@ class Tabuleiro {
       // | de inicio, e pelo meio é 3x—, então um +. Mas, pro final não pode ter o +, então se faz 3x— denovo e fecha com a barra.
       if (y != this.TAMANHO_TABULEIRO-1) print(cor + ' -|' +(('—'*3 + '*')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '| ' + (mostrarPlacar ? _imprimirPlacar(y, false) : '') + Cores.colorReset) ;
     }
-  // Imprimir a parte de baixo, com o _border radius_   sqza\EFVWDSX
+  // Imprimir a parte de baixo, com o _border radius_ 
     print(cor + '  \\' +(('—'*3 + '+')*(this.TAMANHO_TABULEIRO-1)) + '—'*3 + '/ ' + (mostrarPlacar ? _imprimirPlacar(this.TAMANHO_TABULEIRO, false) : '') + Cores.colorReset);
     // Imprimir os número também. Como é um quadrado perfeito, eu fui colocando os número pela repetição do Y para não ter que fazer outro loop aqui em baixo
     // Tem uma lógica para: Quando o digito foi único, coloca 2 espaços depois do número para alinhá-los na célula.
@@ -303,6 +302,8 @@ class Tabuleiro {
       this.tabuleiro[x][y].grifo = ' ';
       if (tirarNavios) this.tabuleiro[x][y].ehNavio = false;
     };
+    this.equipes[0].acertos = 0;
+    this.equipes[1].acertos = 0;
     imprimirTabuleiro(false, Cores.colorReset, mudarBorda);
     clearTerminal();
   }
@@ -347,9 +348,10 @@ class Tabuleiro {
   }
 
   // Record == tupla em python
-  (int, int) verificarInputDoXeY(Equipe equipeAtual, [String letrasPossiveis = '[a-p]', int diminuidorTabuleiro = 0]) {
+  (int, int) verificarInputDoXeY(Equipe equipeAtual, String stringPrincipal, [String letrasPossiveis = '[a-p]', int diminuidorTabuleiro = 0]) {
     int x, y;
     while (true){
+      print(stringPrincipal);
       String? input = stdin.readLineSync();
       // É usado continue para acabar a ITERAÇÃO atual, não acabar com o loop
       if (input == null) continue;
@@ -357,8 +359,12 @@ class Tabuleiro {
       // if (!input.contains(' ')) {Cores.printar('Deve ser separado!', Cores.vermelho); continue;}
       List<String> dividido;
 
-      if (!input.contains(' ')) {
-        dividido = input.split('');  
+      if (!input.contains(' ')) { // Se não ter ' ' (espaço):
+        dividido = input.split(''); // Divide a String por caracter
+        if (dividido.length > 3) continue; // Não pode ter E123
+        if (dividido.length == 3) dividido[1] = dividido[1]+dividido[2];
+        // Se for E22, vai ser dividido ['E', '2', '2'], então ele vai virar ['E', '22', '2']
+        // Como o código só lê os indices 0 e 1, pode deixar o índice 2.
       } else {
         dividido = input.split(' ');
       }
