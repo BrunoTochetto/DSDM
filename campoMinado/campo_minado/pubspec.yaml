@@ -65,6 +65,14 @@ flutter:
     - assets/images/button/button_click.png
     - assets/images/button/button_flag.png
     - assets/images/button/button_pressed.png
+    - assets/images/numero/tile_um.png
+    - assets/images/numero/tile_dois.png
+    - assets/images/numero/tile_tres.png
+    - assets/images/numero/tile_quatro.png
+    - assets/images/numero/tile_cinco.png
+    - assets/images/numero/tile_seis.png
+    - assets/images/numero/tile_sete.png
+    - assets/images/numero/tile_oito.png
     
 
   # To add assets to your application, add an assets section, like this:

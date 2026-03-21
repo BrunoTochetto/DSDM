@@ -5,13 +5,13 @@ import "assets/mapa.dart";
 import "assets/ladrilhos/ladrilho.dart";
 
 void main() {
-    final int tamanhoHorizontal = 12;
-  final int tamanhoVertical = 12;
+  final int tamanhoHorizontal = 10;
+  final int tamanhoVertical = 10;
 
 
   final cameraDoJogo = CameraComponent.withFixedResolution(
-    width: Ladrilho.LADRILHO_TAMANHO*(tamanhoHorizontal+2),
-    height: Ladrilho.LADRILHO_TAMANHO*(tamanhoVertical+3),
+    width: Ladrilho.LADRILHO_TAMANHO*(tamanhoHorizontal+1),
+    height: Ladrilho.LADRILHO_TAMANHO*(tamanhoVertical+5),
   );
 
   runApp(

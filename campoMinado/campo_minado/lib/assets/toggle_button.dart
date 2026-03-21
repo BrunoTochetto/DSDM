@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'mapa.dart';
 import 'imagens.dart';
+import 'ladrilhos/ladrilho.dart';
 
 class ToggleButton extends PositionComponent {
   late SpriteButtonComponent button;
@@ -9,9 +10,9 @@ class ToggleButton extends PositionComponent {
   @override
   Future<void> onLoad() async {
     button = SpriteButtonComponent(
-      button: Imagens.buttonFlag,
+      button: Imagens.buttonClick,
       buttonDown: Imagens.buttonPressed,
-      size: Vector2(75, 25),
+      size: Vector2(Ladrilho.LADRILHO_TAMANHO*6, Ladrilho.LADRILHO_TAMANHO*2),
       onPressed: _onPressed,
     );
     add(button);
