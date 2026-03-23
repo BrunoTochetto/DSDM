@@ -5,14 +5,20 @@ import "assets/mapa.dart";
 import "assets/ladrilhos/ladrilho.dart";
 
 void main() {
-  final int tamanhoHorizontal = 10;
+  final int tamanhoHorizontal = 30;
   final int tamanhoVertical = 10;
 
 
-  final cameraDoJogo = CameraComponent.withFixedResolution(
-    width: Ladrilho.LADRILHO_TAMANHO*(tamanhoHorizontal+1),
-    height: Ladrilho.LADRILHO_TAMANHO*(tamanhoVertical+5),
-  );
+  iniciarJogo(tamanhoHorizontal, tamanhoVertical);
+  
+}
+
+void iniciarJogo(int tamanhoHorizontal, int tamanhoVertical) {
+  // final cameraDoJogo = CameraComponent.withFixedResolution(
+  //   width: (Ladrilho.LADRILHO_TAMANHO*(tamanhoHorizontal+1)),
+  //   height: (Ladrilho.LADRILHO_TAMANHO*(tamanhoVertical+5)),
+  // );
+  final cameraDoJogo = CameraComponent();
 
   runApp(
     GameWidget(
@@ -24,6 +30,6 @@ void main() {
   ));
 
   cameraDoJogo.moveTo(
-    Vector2(Ladrilho.LADRILHO_TAMANHO*tamanhoHorizontal/2, Ladrilho.LADRILHO_TAMANHO*tamanhoVertical/2)
+    Vector2((Ladrilho.LADRILHO_TAMANHO*tamanhoHorizontal/2), (Ladrilho.LADRILHO_TAMANHO*tamanhoVertical))
   );
 }

@@ -16,7 +16,8 @@ class Mapa extends World {
   int tamanhoHorizontal;
   late List<List<Ladrilho>> ladrilhos;
   late int areaTabuleiro = tamanhoVertical * tamanhoHorizontal;
-  late int totalMinas = (areaTabuleiro / 4).floor();
+  // late int totalMinas = (areaTabuleiro / 4).floor();
+  late int totalMinas = 20;  
   late ToggleButton toggleButton;
   
 
@@ -35,8 +36,8 @@ class Mapa extends World {
   void _criarLadrilhos() async {
     await Imagens.loadAll();
 
-    ladrilhos = List.generate(tamanhoVertical, (x) => 
-      List.generate(tamanhoHorizontal, (y) => 
+    ladrilhos = List.generate(tamanhoHorizontal, (x) => 
+      List.generate(tamanhoVertical, (y) => 
       // Está posX = y, pq a IA fez ao contrário. Hmnf, essas máquinas
         Ladrilho(posX: x, posY: y, position: Vector2(x * LADRILHO_TAMANHO, y * LADRILHO_TAMANHO))
       )
@@ -67,8 +68,9 @@ class Mapa extends World {
       int x = random.nextInt(tamanhoHorizontal);
       int y = random.nextInt(tamanhoVertical);
 
-      if (!ladrilhos[y][x].ehMina && !ladrilhos[y][x].semMina) {
-        ladrilhos[y][x].ehMina = true;
+      if (!ladrilhos[x][y].ehMina && !ladrilhos[x][y].semMina) {
+        ladrilhos[x][y].ehMina = true;
+        ladrilhos[x][y].numero = -1;
         minasFaltando--;
       }
     }

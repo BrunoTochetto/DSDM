@@ -8,7 +8,7 @@ class Ladrilho extends SpriteComponent with TapCallbacks {
   late bool ehBandeira = false;
   late bool ehMina = false;
   late bool clicado = false;
-  late int numero = 0;
+  int numero = 0;
   bool semMina = false;
 
   late Sprite spriteNumero;
@@ -18,7 +18,7 @@ class Ladrilho extends SpriteComponent with TapCallbacks {
   int posX;
   int posY;
 
-  static const double LADRILHO_TAMANHO = 25;
+  static const double LADRILHO_TAMANHO = 35;
   late Mapa mapa = (findGame()!.world as Mapa);
   
   Ladrilho({required this.posX, required this.posY, super.position}) :
@@ -70,7 +70,6 @@ class Ladrilho extends SpriteComponent with TapCallbacks {
 
     // Clicked tile logic;
     revelarLadrilho();
-    
   }
 
   void revelarLadrilho() {
@@ -101,17 +100,17 @@ class Ladrilho extends SpriteComponent with TapCallbacks {
   }
 
   void definirNumero() {
-    print('Definir numero');
     if (ehMina == true) return;
 
-    for (int x = posX-1; x < posX+2; x++) {
-      for (int y = posY-1; y < posY+2; y++) {
+    for (int x = posX-1; x <= posX+1; x++) {
+      for (int y = posY-1; y <= posY+1; y++) {
         if (x >= 0 && x < mapa.tamanhoHorizontal && y >= 0 && y < mapa.tamanhoVertical) {
           Ladrilho ladrilhoAtual = mapa.ladrilhos[x][y];
-          if (ladrilhoAtual.clicado) continue;
+          // if (ladrilhoAtual.clicado) continue;
 
           if (ladrilhoAtual.ehMina == true)  {
             numero++;
+            continue;
           }
         }
       }
