@@ -1,17 +1,22 @@
 # Este é o código padrão de teste, ele será usado nos primeiro commits para testes;
+DEV = true
 
 # Printar no terminal
-print("Este é o primeiro print do Isada :D")
+#print("Este é o primeiro print do Isada :D")
 
 # Definição
-criador = "Bruno Tochetto"
+#criador = "Bruno Tochetto"
 
-anoAtual = 2026
+#anoAtual = 2026
 
-print(criador)
+#print(criador)
+
+#print(anoAtual)
+
+print('1' + '2')
 
 # Exemplo de falha de dar um print numa variável e ela não existir.
-# print(ahahaha)
+# print(ahahaha) 
 
 # Criando uma função
 # START funcaoInicial
@@ -20,6 +25,6 @@ print(criador)
 # END
 
 # Ações principais. Ainda falta a interface gráfica...
-mover()
+#mover()
 
-olhar(cima)
+#olhar(cima)

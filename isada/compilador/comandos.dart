@@ -1,54 +1,83 @@
+import 'erros.dart';
 import 'funcoesAuxiliares.dart';
+import 'variaveis.dart';
 
-Map<String, dynamic> definicoesDoCodigo = {};
-
+Map<String, Variavel> definicoesDoCodigo = {
+  // Variáveis que o usuário pode mudar, configurações de sistema;
+  "DEV": new Variavel(true),
+};
 
 void definicao(String linha) {
-  List<String> valores = linha.split('=');
+  List<String> valores = linha.split(Sistema.definicao);
 
   var valor;
 
-  if (valores[1].contains('"')) {
+  printDev(valores[1]);
+
+  if (verificarSeEhString(valores[1])) {
 
     valor = valores[1].split('"')[1].trim();
     
+  } else if (int.tryParse(valores[1]) != null){
 
-  } else {
-    if (int.tryParse(valores[1]) != null) {
+    valor = int.parse(valores[1]);
 
-      valor = int.parse(valores[1]);
+  } else if (valores[1] == 'false' || valores == 'true'){
 
+    if (valores[1] == 'false') {
+      valor = false;
+    } else {
+      valor = true;
     }
-  
+
+  }
+  else {
+    throw erroDeLinha('Esta variável não é possível definir');
   }
 
-  print(valor);
-  print(valor.runtimeType);
-  definicoesDoCodigo[valores[0].toString().trim()] = valor;
+  Variavel definido = new Variavel(valor);
+
+  // print(valor);
+  // print(valor.runtimeType);
+  definicoesDoCodigo[valores[0].toString().trim()] = definido;
 }
 
 void printIsada(String linha) {
   String valorDoPrint = tirarValorDeFuncao(linha);
+  List<String> valores = [];
+  dynamic valorAnterior;
+
+  if (valorDoPrint.contains('+')) {
+    valores = valorDoPrint.split('+');
+  } else {
+    valores.add(valorDoPrint);
+  }
+
+  for (dynamic valor in valores) {
+    // definicoesDoCodigo.keys.forEach((k) {
+    //   print('>"${k.runtimeType}"<');
+    // });
+
+    // Se o valor contem aspas duplas significa que é umas string, logo não é uma variável
+    if (verificarSeEhString(valor)) {
+      printDev('É String!');
+      print(valor);
+      return;
+    }
+
+    if (verificarSeEhVariavel(valor)) {
+      
+      if (definicoesDoCodigo[valor]?.tipo == int) printDev('é um variavel com valor de int');
+
+
+      printVariavel(valor);
+      return;
+    }
 
     
-  // definicoesDoCodigo.keys.forEach((k) {
-  //   print('>"${k}"<');
-  // });
 
-  // Se o valor contem aspas duplas significa que é umas string, logo não é uma variável
-  if (valorDoPrint.contains('"')) {
-    print(valorDoPrint);
-    return;
+    throw erroDeLinha('Variável > $valor < não existe');
   }
-
-  if (definicoesDoCodigo.containsKey(valorDoPrint)) {
-    printVariavel(valorDoPrint);
-    return;
-  }
-
-  throw new Exception('Variavel não existe');
 }
 
-void printVariavel(String linha) {
-  print(definicoesDoCodigo[linha]);
-}
+
