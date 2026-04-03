@@ -5,7 +5,6 @@ void main() {
   runApp(
     MaterialApp(
       home: TelaInicial(),
-
       )
     ); // Função que chama o FLUTTER
 }

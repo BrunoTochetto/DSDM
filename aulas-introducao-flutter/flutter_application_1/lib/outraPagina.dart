@@ -42,6 +42,7 @@ class PaginaDois extends StatelessWidget {
                 if (nome.text.isNotEmpty && numero.text.isNotEmpty && matricula.text.length == 10) {
                     // Tudo okey
                     Navigator.pop(context, Aluno(nome: nome.text, telefone: numero.text, matricula: matricula.text));
+                    return;
                 }
 
                 // Deu merda, algo não está certo.

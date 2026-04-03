@@ -1,0 +1,30 @@
+
+# Printar no terminal
+#print("Este é o primeiro print do Isada :D")
+
+# Definição
+#criador = "Bruno Tochetto"
+
+#anoAtual = 2026
+
+#print(criador)
+
+#print(anoAtual)
+
+print("ola mundo")
+
+print('1' + '2')
+
+# Exemplo de falha de dar um print numa variável e ela não existir.
+# print(ahahaha) 
+
+# Criando uma função
+# START funcaoInicial
+# => (valor)
+# print(valor)
+# END
+
+# Ações principais. Ainda falta a interface gráfica...
+#mover()
+
+#olhar(cima)

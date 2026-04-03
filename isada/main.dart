@@ -19,10 +19,8 @@ void main() async {
     }
 
   } catch (e) {
-    print('Um erro ocorreu com o código: $e');
+    printDeErroBonito('$e');
   }
-
-  printDev(definicoesDoCodigo.toString());
 }
 
 

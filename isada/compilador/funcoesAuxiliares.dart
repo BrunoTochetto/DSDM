@@ -26,9 +26,9 @@ void testandoFuncoes(dynamic nomeFuncao, List acao) {
   }
 }
 
-void printDev(String texto) {
-  // if (definicoesDoCodigo['DEV']?.valor) return
-  Cores.printar(texto, Cores.vermelho);
+void printDev(dynamic texto, [String cor = Cores.vermelho]) {
+  if (definicoesDoCodigo['DEV']?.valor) return
+  Cores.printar(texto.toString(), cor);
 }
 
 String tirarValorDeFuncao(String linhaInteira) {
@@ -41,20 +41,21 @@ String tirarValorDeFuncao(String linhaInteira) {
 
 bool isAlpha(String s) => RegExp(r'^[a-zA-Z]+$').hasMatch(s);
 
-bool verificarSeEhString(String texto) {
-  // print(texto);
-  // print(texto.indexOf('"'));
-  // print(texto.lastIndexOf('"'));
-  // print(texto.indexOf('"') == texto.lastIndexOf('"'));
+bool verificarSeEhString(String texto) { 
 
   // Se não tem aspas, significa que é um valor ou variável.
-  if(!texto.contains('"') && !texto.contains("'")) return false;
-
+  if(!texto.contains('"') && !texto.contains("'") || !(texto[0] == '"' || texto[0] == "'")) return false;
 
   if (texto.contains('"')) {
-    if (texto.indexOf('"') == texto.lastIndexOf('"')) throw erroDeLinha('Definição de String ou variável não existe.');
+    // if (texto.indexOf('"', texto.indexOf('"')+1) != texto.lastIndexOf('"')) throw erroDeLinha('Concatenação inválida da String');
+    if (texto.split('"').length != 3) throw erroDeLinha('Concatenação inválida da String');
+    if (texto.indexOf('"') == texto.lastIndexOf('"')) throw erroDeLinha('String não existe.');
+
   } else {
-    if (texto.indexOf("'") == texto.lastIndexOf("'")) throw erroDeLinha('Definição de String ou variável não existe.');
+    // if (texto.indexOf("'", texto.indexOf("'")+1) != texto.lastIndexOf("'")) throw erroDeLinha('Concatenação inválida da String');
+    if (texto.split("'").length != 3) throw erroDeLinha('Concatenação inválida da String');
+    if (texto.indexOf("'") == texto.lastIndexOf("'")) throw erroDeLinha('String não existe.');
+
   }
 
   return true;
@@ -67,6 +68,18 @@ bool verificarSeEhVariavel(String texto) {
   }
 
   return false;
+}
+
+String retornarStringSemAspas(String texto) {
+  if (texto.contains('"')) {
+    // if (texto.indexOf('"', texto.indexOf('"')+1) != texto.lastIndexOf('"')) throw erroDeLinha('Concatenação inválida da String');
+    return texto.split('"')[1];
+
+  } else {
+    // if (texto.indexOf("'", texto.indexOf("'")+1) != texto.lastIndexOf("'")) throw erroDeLinha('Concatenação inválida da String');
+    return texto.split("'")[1];
+    
+  }
 }
 
 void printVariavel(String linha) {
