@@ -1,5 +1,6 @@
-DEV = true
+DEV = false
 
-palavra = "="
+palavra = "ola mundo"
 
-print()
+
+print("esta palavra é muito legal: ${palavra} com os valores de ${2 + 3}")

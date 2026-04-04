@@ -19,7 +19,7 @@ void main() async {
     }
 
   } catch (e) {
-    printDeErroBonito('$e');
+    printDeErroBonito('Erro na linha ${Sistema.numeroLinha}: $e');
   }
 }
 
@@ -30,15 +30,15 @@ void LeituraInicialDoCodigo(String linha) {
   // Ignora comentários ANTES de ver se o caracter é alfabpetico
   if (linha[0] == Sistema.comentario) return;
   // Ver se o primeiro caracter é alfabético, se não dá erro
-  if (!isAlpha(linha[0])) throw erroDeLinha('Não caracteres não alfabéticos no inicio de linhas');
+  if (!isAlpha(linha[0])) throw ('Não caracteres não alfabéticos no inicio de linhas');
 
-
+  printDev("${Sistema.numeroLinha}. ", Cores.magenta);
 
   if (linha.contains(Sistema.print)) {printIsada(linha); return;}
 
   if (linha.contains(Sistema.definicao, 2)) {definicao(linha); return;}
 
 
-  throw erroDeLinha('Este comando não existe');
+  throw ('Este comando não existe');
 
 }

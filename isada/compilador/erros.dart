@@ -1,4 +1,3 @@
-import 'variaveis.dart';
 import 'funcoesAuxiliares.dart';
 
 void printDeErroBonito(e) {
@@ -8,8 +7,4 @@ void printDeErroBonito(e) {
   print(Cores.texto(e, Cores.amarelo));
   print(barras);
 
-}
-
-Exception erroDeLinha(String erro) {
-  return new Exception('Erro na linha ${Sistema.numeroLinha}: ' + erro);
 }
