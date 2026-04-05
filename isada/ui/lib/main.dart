@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ui/telas/codigo.dart';
-import 'package:ui/telas/result.dart';
+import 'package:ui/telas/resultados.dart';
 
 void main() {
   runApp(MaterialApp(

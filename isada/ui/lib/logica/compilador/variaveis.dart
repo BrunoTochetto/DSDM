@@ -1,5 +1,6 @@
 import 'comandos.dart';
 import 'funcoesAuxiliares.dart';
+import "comandos/print.dart";
 
 class Sistema {
   static const String comentario = '#';
@@ -8,7 +9,7 @@ class Sistema {
 
   static const String definicao = ' = ';
 
-  static const String inicioInterpolacao = '\$' + '{';
+  static const String inicioInterpolacao = '\$' '{';
 
   static int numeroLinha = 1;
 }
@@ -18,19 +19,29 @@ class Variavel {
   late Type tipo;
 
   Variavel({required this.valor}) {
-    this.valor = valor;
+    printDev('Inicializado a classe Variável', Cores.ciano);
+    valor = valor;
     tipo = valor.runtimeType;
   }
+}
+
+void zerarTodosOsValores() {  
+  variaveisDoCodigo = {
+    // Variáveis que o usuário pode mudar, configurações de sistema;
+    "DEV": Variavel(valor: false),
+  };
+  Sistema.numeroLinha = 1;
+  TextoTerminal.terminal = [];
 }
 
 // Infelizmente dynamic pois pode sair um int daqui
 dynamic stringParaValor(String valor) {
   printDev('String para valor', Cores.azul);
   valor = valor.trim();
-  if (valor.length == 0) return '';
+  if (valor.isEmpty) return '';
 
   if (verificarSeEhString(valor)) {
-    printDev('É String!', Cores.verde);
+    
     if (valor.contains(Sistema.inicioInterpolacao)) {
       return _interpolacao(valor);
     }
@@ -43,15 +54,11 @@ dynamic stringParaValor(String valor) {
 
   } else if (verificarSeEhVariavel(valor)) {
 
-    if (variaveisDoCodigo[valor]?.tipo == int)
-      printDev('é um variavel com valor de int', Cores.verde);
-
     return variaveisDoCodigo[valor]!.valor;
 
   } else if (valor.toString().toLowerCase() == "false" ||
       valor.toString().toLowerCase() == "true") {
-    printDev('definindo variável |${valor}| como Booleano', Cores.verde);
-    if (valor == 'false') {
+    if (valor.toLowerCase() == 'false') {
       return false;
     } else {
       return true;
@@ -64,10 +71,8 @@ dynamic variaveisComValoresAdicionais(String valorEntrada) {
   printDev('Entrou em variáveis com valores adicionais', Cores.azul);
   String valorCheio = _inicioInterpolacao(valorEntrada);
   
-  printDev("valorCheio = $valorCheio");
   List<String> valores = valorCheio.split('+');
-  
-  printDev("Valores $valores");
+
 
   var valorFinal;
   for (dynamic valor in valores) {
@@ -103,17 +108,17 @@ dynamic _interpolacao(String valorEntrada) {
   String stringGeral = '';
   List<String> pegarVariavel = valorEntrada.split(Sistema.inicioInterpolacao);  
   for (String item in pegarVariavel) {
-    if (!item.contains('}')) {stringGeral += item; continue;};
+    if (!item.contains('}')) {stringGeral += item; continue;}
     List dividido = item.split('}');
-    String valorEncontrados = dividido[0];
-    printDev(dividido);
-    printDev(variaveisComValoresAdicionais(valorEncontrados));
+    // String valorEncontrados = dividido[0];
+    // printDev(dividido);
+    // printDev(variaveisComValoresAdicionais(valorEncontrados));
 
-    // stringGeral += variaveisComValoresAdicionais(valorEncontrados).toString();
-    // } else {
-    //   throw ('Variável $valorEncontrados não existe');
-    // }
-    // depois do }
+    // // stringGeral += variaveisComValoresAdicionais(valorEncontrados).toString();
+    // // } else {
+    // //   throw ('Variável $valorEncontrados não existe');
+    // // }
+    // // depois do }
     stringGeral += dividido[1];
   }
 
@@ -121,34 +126,32 @@ dynamic _interpolacao(String valorEntrada) {
 }
 
 String _inicioInterpolacao(String valorEntrada) {
+  printDev('Identificado interpolação ', Cores.verde);
   String valorCheio;
   if (valorEntrada.contains(Sistema.inicioInterpolacao)){
     List<String> filtroInicial = valorEntrada.split(Sistema.inicioInterpolacao);
-    printDev("filtroInicial = $filtroInicial");
+    
     List<String> outro = [];
     for (String linha in filtroInicial) {
       if (!linha.contains('}')) continue;
       List divisor = linha.split('}');
-      printDev("Divisor: $divisor");
+      
       outro.add(divisor[0]);
       outro.add(divisor[1]);
     }
-    // outro.removeLast();
-    printDev("Outro = $outro");
 
     valorCheio = filtroInicial[0];
     for (int i = 0; i < outro.length; i++) {
     // for (String item in outro) {
       String item = outro[i];
-      printDev("Item: $item");
+      
 
       if (i % 2 == 1) {valorCheio += item; continue;}
 
       dynamic result = variaveisComValoresAdicionais(item).toString();
       printDev("Result: $result");
-      printDev("valorcheio antes: $valorCheio<");
       valorCheio += result.toString();
-      printDev("valorcheio depois: $valorCheio<");
+      
     }
     
   } else {

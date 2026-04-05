@@ -1,6 +1,14 @@
-DEV = false
+DEV = true
 
 palavra = "ola mundo"
 
+texto = "${4 + 2}R$ de valor de ${palavra}"
+
+conta = 5 + 2
+
 
 print("esta palavra é muito legal: ${palavra} com os valores de ${2 + 3}")
+
+print(texto)
+
+print(conta)

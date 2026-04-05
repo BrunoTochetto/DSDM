@@ -2,10 +2,7 @@ import 'funcoesAuxiliares.dart';
 import 'variaveis.dart';
 import './comandos/print.dart';
 
-Map<String, Variavel> variaveisDoCodigo = {
-  // Variáveis que o usuário pode mudar, configurações de sistema;
-  "DEV": new Variavel(valor: false),
-};
+Map<String, Variavel> variaveisDoCodigo = {};
 
 void definicao(String linha) {
   List<String> valores = linha.split(Sistema.definicao);
@@ -13,9 +10,9 @@ void definicao(String linha) {
   // o problema disso é a falta de output log na definição...
   var valor = variaveisComValoresAdicionais(valores[1]);
 
-  Variavel definido = new Variavel(valor: valor);
+  Variavel definido = Variavel(valor: valor);
 
-  printDev('Definido variável como ${definido.tipo}');
+  printDev('Definido variável como ${definido.tipo}, com valor de |${definido.valor}|');
   variaveisDoCodigo[valores[0].toString().trim()] = definido;
 }
 

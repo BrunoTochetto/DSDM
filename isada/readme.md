@@ -25,6 +25,4 @@ END
 
 ## To-do
 
-Strings grandes tipo variavel + " ola!".
-
 Tabuleiro (pegar do batalha naval)
