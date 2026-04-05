@@ -1,10 +1,10 @@
 import 'package:ui/logica/compilador/comandos/print.dart';
 import 'package:flutter/material.dart';
 
-import 'funcoesAuxiliares.dart';
 
 void printDeErroBonito(e) {
-  String barras = ('=' * e.length);
+  
+  String barras = ('=' * (e.length/1.5).truncate());
 
   const estiloDeMedo = TextStyle(
     backgroundColor: Colors.redAccent,

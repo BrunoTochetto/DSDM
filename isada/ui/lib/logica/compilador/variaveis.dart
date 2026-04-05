@@ -69,10 +69,10 @@ dynamic stringParaValor(String valor) {
 
 dynamic variaveisComValoresAdicionais(String valorEntrada) {
   printDev('Entrou em variáveis com valores adicionais', Cores.azul);
+
   String valorCheio = _inicioInterpolacao(valorEntrada);
   
   List<String> valores = valorCheio.split('+');
-
 
   var valorFinal;
   for (dynamic valor in valores) {
@@ -91,15 +91,12 @@ dynamic variaveisComValoresAdicionais(String valorEntrada) {
       valorFinal = valorDeSaida;
     } else {
       if (valorFinal.runtimeType != valorDeSaida.runtimeType &&
-          valorFinal.runtimeType == num &&
-          valorDeSaida.runtimeType == num)
-        throw (
-          'Não é possível concatenar dois tipos diferentes de dados.',
-        );
+          valorFinal.runtimeType == num && valorDeSaida.runtimeType == num) throw ('Não é possível concatenar dois tipos diferentes de dados.');
 
       valorFinal += valorDeSaida;
     }
   }
+
   return (valorFinal);
 }
 
@@ -157,5 +154,5 @@ String _inicioInterpolacao(String valorEntrada) {
   } else {
     valorCheio = valorEntrada;
   }
-  return valorCheio;
+  return valorCheio.toString();
 }

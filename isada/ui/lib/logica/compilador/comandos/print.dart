@@ -22,14 +22,6 @@ class TextoTerminal {
   }
 }
 
-void printSemValoresAdicionais(String valor) {
-  printDev('Entrou no printSemValoresAdicionas', Cores.azul);
-
-  dynamic stringFinal = stringParaValor(valor).toString();
-  print(stringFinal);
-  printTela(texto: stringFinal);
-}
-
 void printComValoresAdicionais(String valor) {
   printDev('Entrou em print com valores adicionais', Cores.azul);
   dynamic stringFinal = variaveisComValoresAdicionais(valor).toString();

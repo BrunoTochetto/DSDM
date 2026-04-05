@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:ui/logica/compilador/comandos/print.dart';
 
 import 'compilador/comandos.dart';
