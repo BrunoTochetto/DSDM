@@ -7,14 +7,14 @@ import 'compilador/funcoesAuxiliares.dart';
 import 'compilador/variaveis.dart';
 
 void rodarCodigo(List<String> codigo) async {
+    
     try {
       zerarTodosOsValores();
-    
-    for (String linha in codigo) {
-      leituraInicialDoCodigo(linha);
-      Sistema.numeroLinha += 1;
-    }
 
+      for (String linha in codigo) {
+        leituraInicialDoCodigo(linha);
+        Sistema.numeroLinha += 1;
+      }
   } catch (e) {
     printDeErroBonito('Erro na linha ${Sistema.numeroLinha}: $e');
   }

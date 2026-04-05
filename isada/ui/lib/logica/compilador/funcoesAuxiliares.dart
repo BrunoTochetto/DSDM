@@ -21,7 +21,7 @@ class Cores {
 }
 
 void printDev(dynamic texto, [String cor = Cores.vermelho]) {
-  if (!variaveisDoCodigo['DEV']?.valor) return
+  if (variaveisDoCodigo['DEV']?.valor == false) return;
 
   Cores.printar(texto.toString(), cor);
   Color corTexto = Colors.red;
