@@ -1,16 +1,4 @@
-// () => showDialog<String>(
-//         context: context,
-//         builder: (BuildContext context) => AlertDialog(
-//           title: const Text('Descrição do projeto'),
-//           content: Text(texto),
-//           actions: <Widget>[
-//             TextButton(
-//               onPressed: () => Navigator.pop(context),
-//               child: const Text('Fechar'),
-//             ),
-//           ],
-//         ),
-      // ),
+
 
 class Projetos {
   String nomeProjeto;
@@ -26,4 +14,14 @@ class Projetos {
     required this.descricaoProjeto,
     required this.coordenador,
   });
+}
+
+class TamanhoCarrossell {
+    static const double tmPequeno = 0.2;
+    static const double tmNormal = 1;
+
+    static final List<double> sizeNormal = [tmNormal, tmNormal-0.2];
+    static final List<double> sizePequeno = [tmPequeno, tmPequeno];
+    
+    
 }
