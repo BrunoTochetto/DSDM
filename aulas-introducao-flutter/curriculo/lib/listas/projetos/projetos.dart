@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../adicao.dart';
+import 'adicao.dart';
 import '../classe.dart';
 
 class Projeto extends StatefulWidget {
@@ -30,13 +30,11 @@ class _ProjetoState extends State<Projeto> {
   @override
   Widget build(BuildContext context) {
     
-
-
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.menu),
-        title: Text('Titulo muito legal'),
-        actions: [Text('aqui os botões')],
+        leading: IconButton(onPressed: () {Navigator.pop(context);}, icon: Icon(Icons.navigate_before_outlined)),
+        title: Text('Projetos do Bruno'),
+        actions: [Image.asset("assets/img/center.png")],
       ),
       body: ListView.builder(
         scrollDirection: Axis.vertical,
@@ -66,7 +64,7 @@ class _ProjetoState extends State<Projeto> {
                     ],
                   ),
                 ),
-
+      
                 ),
               title: Text("${projetoAtual.nomeProjeto}   $dataInicio | $dataFim"),
               trailing: IconButton(
@@ -84,12 +82,14 @@ class _ProjetoState extends State<Projeto> {
         },
         itemCount: registros.length,
       ),
+
+
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () =>
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PaginaDois()),
+              MaterialPageRoute(builder: (context) => AdicaoProjeto()),
             ).then((aluno) {
               // registros.add(aluno);
               setState(() {
@@ -102,3 +102,5 @@ class _ProjetoState extends State<Projeto> {
     );
   }
 }
+
+

@@ -1,46 +1,109 @@
 import 'package:curriculo/listas/classe.dart';
 import 'package:flutter/material.dart';
+import 'listas/escolaridade/escolaridade.dart';
 import 'listas/projetos/projetos.dart';
+import 'listas/experiencia/experiencia.dart';
 
 void main() {
-  runApp(MaterialApp(home: Perfilusuario())); // Função que chama o FLUTTER
+  runApp(MaterialApp(
+    home: Perfilusuario(),
+    title: 'Curriculo do Bruno',
+    
+    ),
+    ); // Função que chama o FLUTTER
 }
 
-class Perfilusuario extends StatelessWidget {
-
+class Perfilusuario extends StatefulWidget {
   const Perfilusuario({super.key});
 
   @override
+  State<Perfilusuario> createState() => _PerfilusuarioState();
+}
+
+class _PerfilusuarioState extends State<Perfilusuario> {
+  String estado = 'casual';
+  void atualizarTela(String novoEstado) {
+    setState(() {
+      estado = novoEstado;
+    });
+  }
+
+  Widget textoBotaoComMeuRosto(String texto) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.asset('assets/img/left.png', fit: BoxFit.fitHeight,height: 60,),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(texto, style: TextStyle(fontSize: 16),),
+        ),
+        Image.asset('assets/img/right.png', fit: BoxFit.fitHeight,height: 60,),
+      ]
+    );
+  }
+
+  ButtonStyle estiloBotao = ButtonStyle(
+    backgroundColor: WidgetStatePropertyAll(Colors.amber),
+  );
+
+  @override
   Widget build(BuildContext context) {
+    String suffixo = '';
+    const String nome = 'Bruno Tochetto';
+    String prefixo = '';
+
+    if (estado == 'casual') suffixo = 'casual';
+    if (estado == 'if') suffixo = 'no IF';
+    if (estado == 'frio') suffixo = 'com frio';
 
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              
-              ImagensCarrosell(),
+      body: ListView(
 
-              const SizedBox(height: 10),
-              const Text(
-                "Bruno Tochetto",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 20,
+        children: [Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                
+                ImagensCarrosell(atualizarStatus: atualizarTela),
+        
+                const SizedBox(height: 10),
+                Text(
+                  "$prefixo $nome $suffixo",
+                  style: TextStyle(
+                    fontWeight: FontWeight(600),
+                    fontSize: 20
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Projeto() )),
-                child: const Text('Projetos'),
-              )
-            ],
+                const SizedBox(height: 10),
+                Column(
+                  spacing: 20,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Projeto() )),
+                      style: estiloBotao,
+                      child: textoBotaoComMeuRosto('Projetos'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Escolaridade() )),
+                      style: estiloBotao,
+                      child: textoBotaoComMeuRosto('Escolaridade'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Experiencia() )),
+                      style: estiloBotao,
+                      child: textoBotaoComMeuRosto('Experiência'),
+                    ),
+                  ],
+                )
+                
+              ],
+            ),
           ),
         ),
+        ]
       ),
     );
   }
@@ -48,13 +111,15 @@ class Perfilusuario extends StatelessWidget {
 
 
 class ImagensCarrosell extends StatefulWidget {
-  const ImagensCarrosell({super.key});
+  final Function atualizarStatus;
+  const ImagensCarrosell({super.key, required this.atualizarStatus});
 
   @override
   State<ImagensCarrosell> createState() => _ImagensCarrosellState();
 }
 
 class _ImagensCarrosellState extends State<ImagensCarrosell> {
+
   final List<String> gifs = [
     'assets/gifs/amarelo.gif',
     'assets/gifs/regata.gif',
@@ -65,10 +130,13 @@ class _ImagensCarrosellState extends State<ImagensCarrosell> {
 
   @override
   Widget build(BuildContext context) {
-    final double width = MediaQuery.sizeOf(context).width;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 25,
+      // ! Heitor HELP, não sei pq n consigo usar isso com ListView.builder. 
+      // Dá erro de "gesturedetector has no size", mas coloco um sizedBox e nada.
+      // Achei no stackoverflow esse jeito.
       children: List<Widget>.generate( 3, (int index) {
           return Opacity(
             opacity: tamanhos[index] == TamanhoCarrossell.sizePequeno ? 0.4 : 1,
@@ -82,6 +150,12 @@ class _ImagensCarrosellState extends State<ImagensCarrosell> {
                   ];
                   tamanhosAgora[index] = TamanhoCarrossell.sizeNormal;
                   tamanhos = tamanhosAgora;
+    
+                  if (index == 0) widget.atualizarStatus('frio');
+                  if (index == 1) widget.atualizarStatus('casual');
+                  if (index == 2) widget.atualizarStatus('if');
+    
+                  
                 });
               },
               child: Image.asset(
