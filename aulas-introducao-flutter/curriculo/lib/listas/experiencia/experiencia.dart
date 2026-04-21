@@ -55,7 +55,8 @@ class _ExperienciaState extends State<Experiencia> {
           Experiencias ExperienciaAtual = registros[index];
           String dataInicio = "${ExperienciaAtual.dataInicio.month}/${ExperienciaAtual.dataInicio.year}";
           String dataFim = 'Atual';
-          if (ExperienciaAtual.dataFim != DateTime.now()) {
+          if (ExperienciaAtual.dataFim.month != DateTime.now().month && ExperienciaAtual.dataFim.day != DateTime.now().day) {
+            
             dataFim = "${ExperienciaAtual.dataFim.month}/${ExperienciaAtual.dataFim.year}";
           }
           
