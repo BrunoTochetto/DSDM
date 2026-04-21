@@ -42,7 +42,7 @@ class _ProjetoState extends State<Projeto> {
           Projetos projetoAtual = registros[index];
           String dataInicio = "${projetoAtual.dataInicio.month}/${projetoAtual.dataInicio.year}";
           String dataFim = 'Atual';
-          if (projetoAtual.dataFim == DateTime.now()) {
+          if (projetoAtual.dataFim.month != DateTime.now().month && projetoAtual.dataFim.day != DateTime.now().day) {
             dataFim = "${projetoAtual.dataFim.month}/${projetoAtual.dataFim.month}";
           }
           
