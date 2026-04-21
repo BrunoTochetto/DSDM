@@ -15,16 +15,23 @@ class _ProjetoState extends State<Projeto> {
       nomeProjeto: 'Reforço em programação',
       coordenador: 'Alisson Borges Zanetti',
       dataInicio: DateTime(2025, 4),
-      dataFim: DateTime.now(), 
+      dataFim: DateTime(2026, 11), 
       descricaoProjeto: 'Reforço em programação para o primeiro ano do curso técnico em informática para o IFC Campus Concórdia.'
     ),
     Projetos(
-      nomeProjeto: 'História do tempo presente',
+      nomeProjeto: 'História do tempo presente - HTP News',
       coordenador: 'Edimar Sérgio da Silva',
       dataInicio: DateTime(2025, 4),
       dataFim: DateTime(2025, 11), 
       descricaoProjeto: 'Projeto da história do tempo presente'
     ),
+    Projetos(
+      nomeProjeto: '60 Anos IFC Concórdia',
+      coordenador: 'Sílvia Fernanda Souza Dalla Costa',
+      dataInicio: DateTime(2025, 4),
+      dataFim: DateTime(2025, 11), 
+      descricaoProjeto: '60 anos do ifc concórdia'
+    )
   ];
 
   @override
@@ -41,9 +48,10 @@ class _ProjetoState extends State<Projeto> {
         itemBuilder: (context, index) {
           Projetos projetoAtual = registros[index];
           String dataInicio = "${projetoAtual.dataInicio.month}/${projetoAtual.dataInicio.year}";
-          String dataFim = 'Atual';
-          if (projetoAtual.dataFim.month != DateTime.now().month && projetoAtual.dataFim.day != DateTime.now().day) {
-            dataFim = "${projetoAtual.dataFim.month}/${projetoAtual.dataFim.month}";
+          String dataFim = 'Atual até ${projetoAtual.dataFim.month}/${projetoAtual.dataFim.year}';
+
+          if ((projetoAtual.dataFim.month != DateTime.now().month && projetoAtual.dataFim.day != DateTime.now().day && projetoAtual.dataFim.year != DateTime.now().year) || !DateTime.now().isBefore(projetoAtual.dataFim)) {
+            dataFim = "${projetoAtual.dataFim.month}/${projetoAtual.dataFim.year}";
           }
           
           return Container(

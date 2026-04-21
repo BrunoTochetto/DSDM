@@ -21,7 +21,7 @@ class _ExperienciaState extends State<Experiencia> {
     Experiencias(
       titulo: 'Desenvolvimento de atividades com Python',
       dataInicio: DateTime(2024),
-      dataFim: DateTime(2026),
+      dataFim: DateTime(2026, 11),
       descricao: 'Pesquisa, aplicação e uso contínuo do Python pelo projeto de Reforço em programação.',
       empresa: 'IFC Campus Concórdia',
     ),
@@ -54,9 +54,9 @@ class _ExperienciaState extends State<Experiencia> {
         itemBuilder: (context, index) {
           Experiencias ExperienciaAtual = registros[index];
           String dataInicio = "${ExperienciaAtual.dataInicio.month}/${ExperienciaAtual.dataInicio.year}";
-          String dataFim = 'Atual';
-          if (ExperienciaAtual.dataFim.month != DateTime.now().month && ExperienciaAtual.dataFim.day != DateTime.now().day) {
-            
+          String dataFim = 'Atual até ${ExperienciaAtual.dataFim.month}/${ExperienciaAtual.dataFim.year}';
+        
+          if (ExperienciaAtual.dataFim.month != DateTime.now().month && ExperienciaAtual.dataFim.day != DateTime.now().day && ExperienciaAtual.dataFim.year != DateTime.now().year || !DateTime.now().isBefore(ExperienciaAtual.dataFim)) {
             dataFim = "${ExperienciaAtual.dataFim.month}/${ExperienciaAtual.dataFim.year}";
           }
           

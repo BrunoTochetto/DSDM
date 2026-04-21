@@ -11,7 +11,11 @@ class Escolaridade extends StatefulWidget {
 
 class _EscolaridadeState extends State<Escolaridade> {
   List<Escolaridades> registros = [
-    Escolaridades(nomeInstituicao: 'Escola Básica Municipal Anna Zamarchi Coldebella', dataInicio: DateTime(2011), dataFim: DateTime(2024), curso: 'Ensino fundamental')
+    Escolaridades(nomeInstituicao: 'Escola Básica Municipal Anna Zamarchi Coldebella', dataInicio: DateTime(2011), dataFim: DateTime(2024), curso: 'Ensino fundamental'),
+    Escolaridades(nomeInstituicao: 'Sesi', dataInicio: DateTime(2012), dataFim: DateTime(2014), curso: 'Robótica básica'),
+    Escolaridades(nomeInstituicao: 'Terra cursos', dataInicio: DateTime(2016), dataFim: DateTime(2017), curso: 'Design gráfico'),
+    Escolaridades(nomeInstituicao: 'Athus', dataInicio: DateTime(2015), dataFim: DateTime(2017), curso: 'Inglês básico e intermediário'),
+    Escolaridades(nomeInstituicao: 'Instituto Federal Catarinense - Campus concórdia', dataInicio: DateTime(2024), dataFim: DateTime(2026, 12, 21), curso: 'Ensino médio')
   ];
 
   @override
@@ -41,8 +45,9 @@ class _EscolaridadeState extends State<Escolaridade> {
         itemBuilder: (context, index) {
           Escolaridades EscolaridadeAtual = registros[index];
           String dataInicio = "${EscolaridadeAtual.dataInicio.month}/${EscolaridadeAtual.dataInicio.year}";
-          String dataFim = 'Atual';
-          if (EscolaridadeAtual.dataFim != DateTime.now()) {
+          String dataFim = 'Atual até ${EscolaridadeAtual.dataFim.month}/${EscolaridadeAtual.dataFim.year}';
+          
+          if (EscolaridadeAtual.dataFim.month != DateTime.now().month && EscolaridadeAtual.dataFim.day != DateTime.now().day && EscolaridadeAtual.dataFim.year != DateTime.now().year || !DateTime.now().isBefore(EscolaridadeAtual.dataFim)) {
             dataFim = "${EscolaridadeAtual.dataFim.month}/${EscolaridadeAtual.dataFim.year}";
           }
           
