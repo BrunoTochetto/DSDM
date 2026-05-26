@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'classes/aluno.dart';
+import 'model/aluno.dart';
 
 class Perfilusuario extends StatelessWidget {
   final Aluno aluno;
   final int imagem;
   
   const Perfilusuario({super.key, usuario, required this.aluno, required this.imagem});
+  
 
   @override
   Widget build(BuildContext context) {

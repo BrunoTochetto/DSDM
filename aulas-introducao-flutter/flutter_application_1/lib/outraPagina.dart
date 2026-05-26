@@ -1,7 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'package:flutter/material.dart';
-import 'classes/aluno.dart';
+import 'model/aluno.dart';
 
 class PaginaDois extends StatelessWidget {
   const PaginaDois({super.key});
@@ -27,8 +26,10 @@ class PaginaDois extends StatelessWidget {
 
               ElevatedButton(onPressed: () {
                 if (nome.text.isNotEmpty && numero.text.isNotEmpty && matricula.text.length == 10) {
+                    final Aluno alunoCriado = Aluno(nome: nome.text, telefone: numero.text, matricula: matricula.text);
                     // Tudo okey
-                    Navigator.pop(context, Aluno(nome: nome.text, telefone: numero.text, matricula: matricula.text));
+                    Aluno.inserir(alunoCriado);
+                    Navigator.pop(context, alunoCriado);
                     return;
                 }
 

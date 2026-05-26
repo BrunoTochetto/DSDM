@@ -48,7 +48,7 @@ class _ProjetoState extends State<Projeto> {
         itemBuilder: (context, index) {
           Projetos projetoAtual = registros[index];
           String dataInicio = "${projetoAtual.dataInicio.month}/${projetoAtual.dataInicio.year}";
-          String dataFim = 'Atual até ${projetoAtual.dataFim.month}/${projetoAtual.dataFim.year}';
+          String dataFim = 'Atual até ${projetoAtual  .dataFim.month}/${projetoAtual.dataFim.year}';
 
           if ((projetoAtual.dataFim.month != DateTime.now().month && projetoAtual.dataFim.day != DateTime.now().day && projetoAtual.dataFim.year != DateTime.now().year) || !DateTime.now().isBefore(projetoAtual.dataFim)) {
             dataFim = "${projetoAtual.dataFim.month}/${projetoAtual.dataFim.year}";

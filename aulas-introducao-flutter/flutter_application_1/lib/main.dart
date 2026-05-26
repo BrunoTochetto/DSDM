@@ -1,10 +1,38 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'perfilUsuario.dart';
 import 'outraPagina.dart';
-import 'classes/aluno.dart';
+import 'model/aluno.dart';
+
 
 void main() {
-  runApp(MaterialApp(home: TelaInicial())); // Função que chama o FLUTTER
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    sqfliteFfiInit(); // Iniciar o sqlite
+    databaseFactory = databaseFactoryFfi;
+  } else {
+    databaseFactory = databaseFactoryFfiWeb;
+  }
+  Aluno alunoNovo = Aluno(nome: "ola", matricula: "123", telefone: "123");
+  Aluno.inserir(alunoNovo);
+
+  // Aluno.fetchAll().then((alunos){
+  //   for (Map aluno in alunos) {
+  //     debugPrint("Alunos cadastrados: $aluno");
+  //   }
+  // });
+  Aluno.fetchAll().then( (valores) {
+    for (Map valor in valores) {
+      debugPrint(valor.toString());
+    }
+  });
+  
+  // runApp(MaterialApp(
+  //       home: TelaInicial()
+  //     )
+  //   ); // Função que chama o FLUTTER
 }
 
 class TelaInicial extends StatefulWidget {
@@ -14,14 +42,13 @@ class TelaInicial extends StatefulWidget {
   State<TelaInicial> createState() => _TelaInicialState();
 }
 
-class _TelaInicialState extends State<TelaInicial> {
-  List<Aluno> registros = [
-    Aluno(nome: "Antoni", telefone: "49999169602", matricula: "2024311369"),
-    Aluno(nome: "Pedro Freitas", telefone: "4998888660", matricula: "2024305138"),
-  ];
+class _TelaInicialState extends State<TelaInicial> {  
 
   @override
   Widget build(BuildContext context) {
+    List<Aluno> registros = [];
+
+
     return Scaffold(
       appBar: AppBar(
         leading: Icon(Icons.menu),
@@ -32,7 +59,7 @@ class _TelaInicialState extends State<TelaInicial> {
         scrollDirection: Axis.vertical,
         itemBuilder: (context, index) {
           return Container(
-            color: Colors.greenAccent,
+            color: Colors.red[600],
             child: ListTile(
               leading: IconButton(
                 icon: Image.asset('images/sabrina.jpg'),
@@ -43,11 +70,10 @@ class _TelaInicialState extends State<TelaInicial> {
               ),
               title: Text(registros[index].nome),
               trailing: IconButton(
-                onPressed: () => {
+                onPressed: () {
                   setState(() {
                     registros.remove(registros[index]);
-                  })
-                  
+                  });
                 },
                 icon: Icon(Icons.delete_forever_outlined),
               ),
