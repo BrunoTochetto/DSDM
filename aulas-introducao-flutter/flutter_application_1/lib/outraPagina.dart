@@ -25,12 +25,12 @@ class PaginaDois extends StatelessWidget {
               TextField(controller: matricula, maxLength: 10),
 
               ElevatedButton(onPressed: () {
-                if (nome.text.isNotEmpty && numero.text.isNotEmpty && matricula.text.length == 10) {
+                if (nome.text.isNotEmpty && numero.text.isNotEmpty && matricula.text.isNotEmpty) {
                     final Aluno alunoCriado = Aluno(nome: nome.text, telefone: numero.text, matricula: matricula.text);
-                    // Tudo okey
                     Aluno.inserir(alunoCriado);
-                    Navigator.pop(context, alunoCriado);
+                    Navigator.pop(context);
                     return;
+                    
                 }
 
                 // Deu merda, algo não está certo.
