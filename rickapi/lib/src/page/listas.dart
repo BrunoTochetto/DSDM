@@ -26,7 +26,9 @@ class ListaListada extends StatefulWidget {
 
 class _ListaListadaState extends State<ListaListada> {
   late int ultimaPagina = 2;
-  late List<String> urls = ["https://rickandmortyapi.com/api/${widget.listaParaBuscaNaAPI}?page=1"]; //  campo URI de ListaBuscar funcionar com primeira página.
+  late List<String> urls = [
+    "https://rickandmortyapi.com/api/${widget.listaParaBuscaNaAPI}?page=1",
+  ]; //  campo URI de ListaBuscar funcionar com primeira página.
 
   final ScrollController _scrollController = ScrollController();
 
@@ -35,10 +37,12 @@ class _ListaListadaState extends State<ListaListada> {
     super.initState();
     _scrollController.addListener(() {
       final posicao = _scrollController.position;
-      if (posicao.pixels >= posicao.maxScrollExtent - 200) {
+      if (posicao.pixels >= posicao.maxScrollExtent - 500) {
         print("é para atualizar página");
         print(urls.toString());
-        setState(() {debugPrint("Deu setState");});
+        setState(() {
+          urls;
+        });
       }
     });
   }
@@ -47,14 +51,13 @@ class _ListaListadaState extends State<ListaListada> {
     if (info.next == null) {
       return debugPrint("não exite próxima página");
     }
-    
+
     if (urls.contains(info.next)) {
       return;
     } else {
       urls.add(info.next!);
     }
-      
-    
+
     // ultimaPagina = max(int.parse(info.next.toString()[-1]), ultimaPagina);
     // ultimaPagina++;
   }
@@ -64,7 +67,9 @@ class _ListaListadaState extends State<ListaListada> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.nomePagina)),
       body: ListView.builder(
+        controller: _scrollController,
         itemCount: urls.length,
+        addAutomaticKeepAlives: true,
         itemBuilder: (context, index) {
           return ListaBuscar(
             manusearResposta: widget.manusearResposta,
@@ -77,5 +82,11 @@ class _ListaListadaState extends State<ListaListada> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }
