@@ -1,10 +1,9 @@
-import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:rickapi/model/info.dart';
-import 'package:rickapi/src/widget/ListaBuscar.dart';
 
 class ListaListada extends StatefulWidget {
   final String listaParaBuscaNaAPI;
@@ -25,23 +24,25 @@ class ListaListada extends StatefulWidget {
 }
 
 class _ListaListadaState extends State<ListaListada> {
-  late int ultimaPagina = 2;
-  late List<String> urls = [
-    "https://rickandmortyapi.com/api/${widget.listaParaBuscaNaAPI}?page=1",
-  ]; //  campo URI de ListaBuscar funcionar com primeira página.
+  late String proximoURI = "https://rickandmortyapi.com/api/${widget.listaParaBuscaNaAPI}?page=1";
+
+  late Future<List<dynamic>?> FuturaListaDeItens = pageData();
 
   final ScrollController _scrollController = ScrollController();
+  bool pegandosInfosProximaPagia = false;
+  bool existeProximaPagia = true; // Momento q isso virar TRUE não carrega mais NADA
+
+  late List<dynamic> itensFinais = [];
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      final posicao = _scrollController.position;
-      if (posicao.pixels >= posicao.maxScrollExtent - 500) {
-        print("é para atualizar página");
-        print(urls.toString());
+      final ScrollPosition posicao = _scrollController.position;
+      if (posicao.pixels >= posicao.maxScrollExtent - MediaQuery.of(context).size.height * 1.2 && !pegandosInfosProximaPagia && existeProximaPagia) {
         setState(() {
-          urls;
+          pegandosInfosProximaPagia = true;
+          FuturaListaDeItens = pageData();
         });
       }
     });
@@ -49,37 +50,78 @@ class _ListaListadaState extends State<ListaListada> {
 
   void pegarUltimaPagina(Info info) {
     if (info.next == null) {
-      return debugPrint("não exite próxima página");
+      existeProximaPagia = false;
+      return debugPrint("Não exite próxima página");
     }
 
-    if (urls.contains(info.next)) {
-      return;
-    } else {
-      urls.add(info.next!);
-    }
+    proximoURI = info.next!;
+  }
 
-    // ultimaPagina = max(int.parse(info.next.toString()[-1]), ultimaPagina);
-    // ultimaPagina++;
+  Future<List<dynamic>?> pageData() async {
+    final Response response;
+
+    response = await http.get(Uri.parse(proximoURI));
+
+    pegarUltimaPagina(Info.fromJson(json.decode(response.body)["info"]));
+
+    return widget.manusearResposta(response);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.nomePagina)),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: urls.length,
-        addAutomaticKeepAlives: true,
-        itemBuilder: (context, index) {
-          return ListaBuscar(
-            manusearResposta: widget.manusearResposta,
-            widgetParaEmpilhar: widget.widgetParaEmpilhar,
-            pagina: 1,
-            listaParaBuscaNaAPI: widget.listaParaBuscaNaAPI,
-            retornarUltimaPagina: pegarUltimaPagina,
-            uri: urls[index],
-          );
-        },
+      body: ListView(
+        controller: _scrollController,  
+        children: [
+          ListView.builder(
+            itemCount: itensFinais.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(), // Ia mandou fazer isso, por causa de erro no hasSize
+
+            itemBuilder: (context, index) {
+              dynamic listaAtual = itensFinais[index];
+      
+              return widget.widgetParaEmpilhar(listaAtual);
+            },
+          ),
+          FutureBuilder(
+            future:FuturaListaDeItens, // Aqui vai a função que contém os dados via HTTP:
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return AlertDialog(
+                    title: Text("Não há conexão com a internet"),
+                  );
+                case ConnectionState.waiting:
+                case ConnectionState.active:
+                  return CircularProgressIndicator();
+                case ConnectionState.done:
+                  if (!snapshot.hasData) {
+                    pegandosInfosProximaPagia = false;
+                    return Text("Não há informações, mas é possível você estar sendo rate-limited.");
+                  }
+      
+                  List<dynamic> listaListada = snapshot.data as List<dynamic>;
+                  itensFinais.addAll(listaListada);
+                  pegandosInfosProximaPagia = false;
+      
+                  return ListView.builder(
+                    
+                    itemCount: listaListada.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+      
+                    itemBuilder: (context, index) {
+                      dynamic listaAtual = listaListada[index];
+      
+                      return widget.widgetParaEmpilhar(listaAtual);
+                    },
+                  );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

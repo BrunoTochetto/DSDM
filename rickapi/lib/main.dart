@@ -15,19 +15,14 @@ import 'src/page/inicial.dart';
 import 'package:http/http.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized(); // <- Necessário na Web;
-  // também deve dar: dart run sqflite_common_ffi_web:setup
+  WidgetsFlutterBinding.ensureInitialized(); // <- Necessário na Web; // Sinceramente estava aqui, deve ser de um CTRL V que eu dei no main, vai q precisa de vdd, n sei
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-
       initialRoute: '/',
       routes: {
         '/': (context) => Inicial(),
         '/personagem': (context) {
-          // final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          // final String categoria = args?['categoria'] as String? ?? 'cabeca';
-          
           return ListaListada( // Personagem
             listaParaBuscaNaAPI: "character",
             nomePagina: "Personagens",
@@ -44,8 +39,6 @@ void main() {
           );
         },
         '/local': (context) {
-          // final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          // final String categoria = args?['categoria'] as String? ?? 'cabeca';
           return ListaListada(
             listaParaBuscaNaAPI: "location",
             nomePagina: "Locais",
@@ -62,9 +55,6 @@ void main() {
           );
         },
         '/episodio': (context) {
-          // final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          // final String categoria = args?['categoria'] as String? ?? 'cabeca';
-          // return ListaEpisodios();
           return ListaListada( // Episódio
             listaParaBuscaNaAPI: "episode",
             nomePagina: "Episódios",

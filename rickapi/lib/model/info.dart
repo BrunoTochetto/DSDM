@@ -19,4 +19,8 @@ class Info {
       prev: json['prev'],
       );
   }
+  @override
+  String toString() {
+    return "Info: Count: $count, Pages: $pages\nPrev: $prev\nNext: $next \n ==========";
+  }
 }
